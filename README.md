@@ -13,7 +13,7 @@ It currently covers:
 - ChromaDB-backed vector storage with a persistent collection by default in the demo/runtime
 - BM25 retrieval over original chunk text only
 - hybrid retrieval with Reciprocal Rank Fusion
-- a small demo script for top-k retrieval
+- a small interactive question answer cli
 
 ## Indexing Pipeline
 
@@ -44,7 +44,7 @@ pytest
 ## Demo
 
 ```bash
-python -m rag.demo
+rag-cli 
 ```
 
 Set `OLLAMA_BASE_URL` or `RAG_OLLAMA_BASE_URL` if Ollama is not on `localhost:11434`.
