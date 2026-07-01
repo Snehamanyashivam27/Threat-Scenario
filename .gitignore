@@ -1,0 +1,23 @@
+# Python virtual environment
+.venv/
+
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Local RAG index and cache (rebuilt with rag-cli --reindex)
+.rag/
+
+# Environment / secrets
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

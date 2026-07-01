@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rag-threat-scenario-generator"
+version = "0.1.0"
+description = "Retrieval layer for a threat scenario description generator"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.7",
+  "rank-bm25>=0.2.2",
+  "chromadb>=0.5.0",
+  "langchain-core>=0.2.0",
+  "langchain-ollama>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+rag-cli = "rag.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["rag*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
