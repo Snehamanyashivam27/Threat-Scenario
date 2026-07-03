@@ -6,7 +6,7 @@ from typing import Iterable
 
 from rag.models.answer import SourceReference
 from rag.models.document import RetrievedChunk
-from rag.retrieval.context_selector import detect_query_intent, extract_attack_id, extract_fields, extract_title, source_group_for
+from rag.retrieval.context_selector import ATTACK_INTENTS, QueryIntent, detect_query_intent, extract_attack_id, extract_fields, extract_title, source_group_for
 from rag.utils.text import strip_markdown_links
 
 
@@ -34,9 +34,9 @@ class ContextBuilder:
         advisories = grouped.get("cisa", [])
 
         if enterprise:
-            sections.append(self._render_attack_framework("Enterprise ATT&CK", enterprise))
+            sections.append(self._render_attack_framework("Enterprise ATT&CK", enterprise, query=query))
         if ics:
-            sections.append(self._render_attack_framework("ICS ATT&CK", ics))
+            sections.append(self._render_attack_framework("ICS ATT&CK", ics, query=query))
 
         include_advisories = intent in self.ADVISORY_INTENTS or (not enterprise and not ics and advisories)
         if include_advisories and advisories:
@@ -48,48 +48,38 @@ class ContextBuilder:
         return "\n\n".join(section for section in sections if section.strip())
 
     def build_sources(self, chunks: Iterable[RetrievedChunk]) -> list[SourceReference]:
-        chunk_list = list(chunks)
-        grouped = self._group_selected_chunks(chunk_list)
+        # Sources mirror the exact documents rendered into the LLM context, in the same order.
+        grouped = self._group_selected_chunks(chunks)
         sources: list[SourceReference] = []
+        seen: set[tuple[str, str]] = set()
 
         for group, label in (("enterprise", "Enterprise ATT&CK"), ("ics", "ICS ATT&CK")):
-            items = grouped.get(group, [])
-            if not items:
-                continue
-            attack_id = self._attack_id_for_group(chunk_list, group, items)
-            sources.append(SourceReference(attack_id=attack_id, document_source=label))
+            for item in grouped.get(group, []):
+                attack_id = item.get("attack_id", "")
+                key = (label, attack_id)
+                if key in seen:
+                    continue
+                seen.add(key)
+                sources.append(SourceReference(attack_id=attack_id, document_source=label))
 
-        seen_advisories: set[str] = set()
         for item in grouped.get("cisa", []):
             identifier = item.get("identifier") or item.get("advisory") or ""
-            key = identifier or item.get("source", "")
-            if key in seen_advisories:
+            key = ("CISA ICS Advisory", identifier)
+            if key in seen:
                 continue
-            seen_advisories.add(key)
+            seen.add(key)
             sources.append(SourceReference(attack_id=identifier, document_source="CISA ICS Advisory"))
 
-        seen_other: set[str] = set()
         for item in grouped.get("other", []):
             label = item.get("framework") or item.get("source") or "Other"
-            if label in seen_other:
+            attack_id = item.get("attack_id", "")
+            key = (label, attack_id)
+            if key in seen:
                 continue
-            seen_other.add(label)
-            sources.append(SourceReference(attack_id=item.get("attack_id", ""), document_source=label))
+            seen.add(key)
+            sources.append(SourceReference(attack_id=attack_id, document_source=label))
 
         return sources
-
-    @staticmethod
-    def _attack_id_for_group(
-        chunks: Iterable[RetrievedChunk],
-        group: str,
-        grouped_items: list[dict[str, str]],
-    ) -> str:
-        for chunk in chunks:
-            if source_group_for(chunk) == group:
-                attack_id = extract_attack_id(chunk)
-                if attack_id:
-                    return attack_id
-        return next((item["attack_id"] for item in grouped_items if item.get("attack_id")), "")
 
     def _group_selected_chunks(self, chunks: Iterable[RetrievedChunk]) -> dict[str, list[dict[str, str]]]:
         grouped: dict[str, list[dict[str, str]]] = {"enterprise": [], "ics": [], "cisa": [], "other": []}
@@ -101,6 +91,12 @@ class ContextBuilder:
             if group in {"enterprise", "ics"}:
                 title_key = normalize_key(item["title"])
                 if title_key in seen_titles[group]:
+                    for index, existing in enumerate(grouped[group]):
+                        if normalize_key(existing["title"]) != title_key:
+                            continue
+                        if not existing.get("attack_id") and item.get("attack_id"):
+                            grouped[group][index] = item
+                        break
                     continue
                 seen_titles[group].add(title_key)
             grouped[group].append(item)
@@ -118,8 +114,8 @@ class ContextBuilder:
             "source": chunk.source,
             "attack_id": attack_id,
             "title": title,
-            "tactic": cls._short_value(fields.get("Tactic") or ""),
-            "platforms": cls._short_value(fields.get("Platforms") or fields.get("Platform") or ""),
+            "tactic": cls._format_tactic_list(fields.get("Tactic") or ""),
+            "platforms": cls._compact_list(fields.get("Platforms") or fields.get("Platform") or ""),
             "description": cls._clean_summary(fields.get("Description") or "", sentence_limit=2),
             "detection": cls._clean_summary(fields.get("Detection") or "", sentence_limit=1),
             "mitigations": cls._clean_summary(fields.get("Mitigations") or "", sentence_limit=1),
@@ -161,18 +157,24 @@ class ContextBuilder:
         return {str(key): str(value) for key, value in parsed.items() if value} if isinstance(parsed, dict) else {}
 
     @classmethod
-    def _render_attack_framework(cls, heading: str, items: list[dict[str, str]]) -> str:
+    def _render_attack_framework(cls, heading: str, items: list[dict[str, str]], query: str = "") -> str:
+        include_operational_fields = detect_query_intent(query) in {
+            QueryIntent.THREAT_SCENARIO_QUERY,
+            QueryIntent.GENERAL_SECURITY_QUESTION,
+        }
         lines = [heading]
         for item in items:
             technique = item["title"] or item["attack_id"] or "Unknown technique"
             if item["attack_id"]:
                 technique = f"{technique} ({item['attack_id']})"
             lines.append(f"Technique: {technique}")
+            if item["tactic"]:
+                lines.append(f"Tactic: {item['tactic']}")
             if item["description"]:
                 lines.append(f"Description: {item['description']}")
-            if item["detection"] and item["detection"].lower() != "not available in source data":
+            if include_operational_fields and item["detection"] and item["detection"].lower() != "not available in source data":
                 lines.append(f"Detection: {item['detection']}")
-            if item["mitigations"]:
+            if include_operational_fields and item["mitigations"]:
                 lines.append(f"Mitigation: {item['mitigations']}")
             lines.append("")
         return "\n".join(line for line in lines if line is not None).strip()
@@ -219,6 +221,24 @@ class ContextBuilder:
         return value
 
     @staticmethod
+    def _compact_list(value: str, max_items: int = 6, max_chars: int = 200) -> str:
+        value = strip_markdown_links(re.sub(r"\s+", " ", value).strip(" ;,."))
+        if not value:
+            return ""
+        parts = [part.strip() for part in re.split(r"[,;]", value) if part.strip()]
+        if len(parts) > max_items:
+            value = ", ".join(parts[:max_items]) + ", ..."
+        else:
+            value = ", ".join(parts)
+        if len(value) > max_chars:
+            value = value[:max_chars].rsplit(" ", 1)[0].rstrip(" ,;") + "..."
+        return value
+
+    @staticmethod
+    def _format_tactic_list(value: str) -> str:
+        return ContextBuilder._compact_list(value, max_items=8, max_chars=240)
+
+    @staticmethod
     def _short_value(value: str, max_items: int = 3, max_chars: int = 140) -> str:
         value = strip_markdown_links(re.sub(r"\s+", " ", value).strip(" ;,."))
         if not value:
@@ -226,6 +246,8 @@ class ContextBuilder:
         parts = [part.strip() for part in re.split(r"[,;]", value) if part.strip()]
         if len(parts) > max_items:
             value = ", ".join(parts[:max_items]) + ", and related products"
+        else:
+            value = ", ".join(parts)
         if len(value) > max_chars:
             value = value[:max_chars].rsplit(" ", 1)[0].rstrip(" ,;") + "..."
         return value

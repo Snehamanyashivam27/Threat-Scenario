@@ -84,6 +84,40 @@ def test_attack_context_strips_markdown_links():
     assert "attack.mitre.org" not in context
 
 
+def test_build_sources_lists_each_rendered_chunk_in_order():
+    builder = ContextBuilder()
+    chunks = [
+        RetrievedChunk(
+            chunk_id="T1136.002::chunk-1",
+            score=0.9,
+            source="enterprise-attack.json",
+            document_id="attack-pattern--T1136.002",
+            metadata={"attack_id": "T1136.002", "title": "Create Account: Domain Account"},
+            text=(
+                "Technique Name: Create Account: Domain Account ATT&CK ID: T1136.002 "
+                "Description: Adversaries may create a domain account to maintain access."
+            ),
+        ),
+        RetrievedChunk(
+            chunk_id="T1078.002::chunk-1",
+            score=0.85,
+            source="enterprise-attack.json",
+            document_id="attack-pattern--T1078.002",
+            metadata={"attack_id": "T1078.002", "title": "Domain Accounts"},
+            text=(
+                "Technique Name: Domain Accounts ATT&CK ID: T1078.002 "
+                "Description: Adversaries may obtain and abuse credentials of a domain account."
+            ),
+        ),
+    ]
+
+    sources = builder.build_sources(chunks)
+
+    assert len(sources) == 2
+    assert sources[0].attack_id == "T1136.002"
+    assert sources[1].attack_id == "T1078.002"
+
+
 def test_build_sources_dedupes_framework_without_attack_id():
     builder = ContextBuilder()
     chunks = [

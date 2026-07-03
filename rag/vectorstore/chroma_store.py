@@ -8,6 +8,7 @@ from typing import Any, Iterable
 
 from rag.embeddings.embedding_service import EmbeddingService
 from rag.models.document import ChunkDocument, RetrievedChunk
+from rag.retrieval.ranking import score_chunk_id_key
 
 
 class ChromaStore:
@@ -89,7 +90,7 @@ class ChromaStore:
             (self._cosine_similarity(query_vector, embedding), chunk)
             for chunk, embedding in zip(self._records, self._embeddings, strict=False)
         ]
-        scored.sort(key=lambda item: item[0], reverse=True)
+        scored.sort(key=lambda item: score_chunk_id_key(item[0], item[1].chunk_id))
         return [self._to_retrieved_chunk(chunk, score) for score, chunk in scored[:k]]
 
     def _chroma_similarity_search(self, query: str, k: int) -> list[RetrievedChunk]:

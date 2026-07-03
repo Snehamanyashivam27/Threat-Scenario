@@ -4,6 +4,9 @@ import re
 
 from rag.models.document import RetrievedChunk
 from rag.retrieval.bm25_retriever import BM25Retriever
+from rag.retrieval.identifier_lookup import lookup_by_identifiers
+from rag.retrieval.query_understanding import expand_query_for_retrieval, has_security_concept
+from rag.retrieval.retrieval_debug import log_ranked_chunks, log_stage
 from rag.retrieval.rrf import reciprocal_rank_fusion
 from rag.retrieval.vector_retriever import VectorRetriever
 
@@ -15,19 +18,92 @@ class HybridRetriever:
         self.rrf_k = rrf_k
 
     def retrieve(self, query: str, k: int = 5, candidate_k: int | None = None) -> list[RetrievedChunk]:
-        candidate_k = candidate_k or 20
-        vector_results = self.vector_retriever.retrieve(query, k=candidate_k)
-        bm25_results = self.bm25_retriever.retrieve(query, k=candidate_k)
-        fused = reciprocal_rank_fusion([vector_results, bm25_results], k=self.rrf_k)
+        from rag.retrieval.context_selector import QueryIntent, detect_query_intent
+
+        intent = detect_query_intent(query)
+        identifier_results = self._lookup_by_identifiers(query)
+        if identifier_results:
+            log_stage("identifier_lookup", query=query, matches=len(identifier_results))
+            log_ranked_chunks("identifier results", identifier_results)
+            return identifier_results[:k]
+
+        candidate_k = self._candidate_pool_size(intent, candidate_k)
+        retrieval_query = expand_query_for_retrieval(query)
+        log_stage(
+            "hybrid_retrieval",
+            query=query,
+            intent=intent.value,
+            expanded_query=retrieval_query,
+            candidate_k=candidate_k,
+        )
+
+        vector_results = self.vector_retriever.retrieve(retrieval_query, k=candidate_k)
+        bm25_results = self.bm25_retriever.retrieve(retrieval_query, k=candidate_k)
+        log_ranked_chunks("vector results", vector_results)
+        log_ranked_chunks("bm25 results", bm25_results)
+
+        fused = reciprocal_rank_fusion(
+            [vector_results, bm25_results],
+            k=self.rrf_k,
+            weights=self._rrf_weights(intent),
+        )
         ranked = self._apply_query_source_bias(query, self._apply_exact_name_bias(query, fused))
+        log_ranked_chunks("rrf results", ranked)
         return ranked[:k]
 
     def retrieve_with_debug(self, query: str, k: int = 5, candidate_k: int | None = None) -> tuple[list[RetrievedChunk], list[RetrievedChunk], list[RetrievedChunk]]:
-        candidate_k = candidate_k or 20
-        vector_results = self.vector_retriever.retrieve(query, k=candidate_k)
-        bm25_results = self.bm25_retriever.retrieve(query, k=candidate_k)
-        fused = self._apply_query_source_bias(query, self._apply_exact_name_bias(query, reciprocal_rank_fusion([vector_results, bm25_results], k=self.rrf_k)))[:k]
+        from rag.retrieval.context_selector import detect_query_intent
+
+        intent = detect_query_intent(query)
+        identifier_results = self._lookup_by_identifiers(query)
+        if identifier_results:
+            log_stage("identifier_lookup", query=query, matches=len(identifier_results))
+            return [], [], identifier_results[:k]
+
+        candidate_k = self._candidate_pool_size(intent, candidate_k)
+        retrieval_query = expand_query_for_retrieval(query)
+        log_stage("hybrid_retrieval", query=query, intent=intent.value, expanded_query=retrieval_query)
+
+        vector_results = self.vector_retriever.retrieve(retrieval_query, k=candidate_k)
+        bm25_results = self.bm25_retriever.retrieve(retrieval_query, k=candidate_k)
+        fused = self._apply_query_source_bias(
+            query,
+            self._apply_exact_name_bias(
+                query,
+                reciprocal_rank_fusion(
+                    [vector_results, bm25_results],
+                    k=self.rrf_k,
+                    weights=self._rrf_weights(intent),
+                ),
+            ),
+        )[:k]
         return vector_results, bm25_results, fused
+
+    @staticmethod
+    def _candidate_pool_size(intent, candidate_k: int | None) -> int:
+        from rag.retrieval.context_selector import QueryIntent
+
+        if candidate_k is not None:
+            return candidate_k
+        if intent == QueryIntent.GENERAL_CONCEPT_QUERY:
+            return 30
+        if intent == QueryIntent.ATTACK_TACTIC_LOOKUP:
+            return 25
+        return 20
+
+    @staticmethod
+    def _rrf_weights(intent) -> list[float] | None:
+        from rag.retrieval.context_selector import QueryIntent
+
+        if intent == QueryIntent.GENERAL_CONCEPT_QUERY:
+            return [0.9, 1.2]
+        return None
+
+    def _lookup_by_identifiers(self, query: str) -> list[RetrievedChunk]:
+        chunks = getattr(self.bm25_retriever, "chunks", None)
+        if not chunks:
+            return []
+        return lookup_by_identifiers(chunks, query)
 
     @staticmethod
     def _apply_exact_name_bias(query: str, results: list[RetrievedChunk]) -> list[RetrievedChunk]:
@@ -55,7 +131,7 @@ class HybridRetriever:
             )
             for item in results
         ]
-        return sorted(boosted_results, key=lambda item: (item.score, item.metadata.get("rrf_score", 0.0)), reverse=True)
+        return sorted(boosted_results, key=lambda item: (-item.score, -float(item.metadata.get("rrf_score", 0.0)), item.chunk_id))
 
     @staticmethod
     def _apply_query_source_bias(query: str, results: list[RetrievedChunk]) -> list[RetrievedChunk]:
@@ -83,12 +159,14 @@ class HybridRetriever:
                     contextual_text=item.contextual_text,
                 )
             )
-        return sorted(reranked, key=lambda item: (item.score, item.metadata.get("rrf_score", 0.0)), reverse=True)
+        return sorted(reranked, key=lambda item: (-item.score, -float(item.metadata.get("rrf_score", 0.0)), item.chunk_id))
 
     @staticmethod
     def _has_attack_intent(query: str, results: list[RetrievedChunk]) -> bool:
         normalized_query = HybridRetriever._normalize(query)
         if re.search(r"\bT\d{4}(?:\.\d{3})?\b", query, flags=re.IGNORECASE):
+            return True
+        if has_security_concept(query):
             return True
         for item in results:
             if HybridRetriever._source_group(item) not in {"enterprise", "ics"}:

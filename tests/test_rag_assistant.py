@@ -87,6 +87,54 @@ def test_strip_embedded_sources_handles_colon_and_duplicate_blocks():
     assert "Sources" not in cleaned
 
 
+class HallucinatingAnswerService:
+    def generate(self, query: str, context: str) -> str:
+        return (
+            "Valid Accounts is an ATT&CK technique. In ICS environments, adversaries may exploit default "
+            "credentials for control system devices. Both contexts highlight the importance of implementing "
+            "strong password policies, multi-factor authentication, and user training."
+        )
+
+
+def test_rag_assistant_uses_deterministic_formatter_for_technique_lookup():
+    assistant = RAGAssistant(FakeRetriever(), HallucinatingAnswerService())
+    result = assistant.ask("What is Exploit Public-Facing Application?", k=5)
+
+    assert "T1190" in result.answer
+    assert "T0819" in result.answer
+    assert "multi-factor" not in result.answer.lower()
+    assert "user training" not in result.answer.lower()
+    assert "Both contexts highlight" not in result.answer
+
+
+class ScalanceAdvisoryRetriever:
+    def retrieve(self, query: str, k: int = 10):
+        return [
+            RetrievedChunk(
+                chunk_id="1749::chunk-1",
+                score=10.0,
+                source="CISA_ICS_ADV_Master.csv",
+                document_id="1749",
+                metadata={"title": "Siemens Web Server of SCALANCE X200 (Update A)"},
+                text=(
+                    "Advisory: Siemens Web Server of SCALANCE X200 (Update A) "
+                    "Identifier: 1749 Vendor: Siemens Product: Siemens Web Server of SCALANCE X200 "
+                    "CVE: CVE-2021-25668 Severity: Critical Sector: Critical Manufacturing"
+                ),
+            )
+        ]
+
+
+def test_rag_assistant_uses_deterministic_formatter_for_product_query():
+    assistant = RAGAssistant(ScalanceAdvisoryRetriever(), HallucinatingAnswerService())
+    result = assistant.ask("Tell me about SCALANCE X200.", k=5)
+
+    assert "CISA ICS Advisory 1749" in result.answer
+    assert "SCALANCE X200" in result.answer
+    assert "Valid Accounts" not in result.answer
+    assert "multi-factor" not in result.answer.lower()
+
+
 def test_structured_context_groups_attack_and_summarizes_advisory():
     chunks = ContextSelector().select(
         "Exploit Public-Facing Application",

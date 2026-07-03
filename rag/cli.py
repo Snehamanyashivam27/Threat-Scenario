@@ -11,6 +11,7 @@ from rag.models.document import RetrievedChunk
 from rag.pipeline import KnowledgeBasePipeline
 from rag.retrieval.bm25_retriever import BM25Retriever
 from rag.retrieval.hybrid_retriever import HybridRetriever
+from rag.retrieval.retrieval_debug import is_retrieval_debug_enabled
 from rag.retrieval.vector_retriever import VectorRetriever
 from rag.runtime import create_answer_service, create_context_generator, create_embedding_service, default_persist_directory, chroma_collection_name
 
@@ -46,8 +47,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--top-k", type=int, default=5, help="Legacy retrieval setting; post-retrieval selection keeps the top 2-3 documents")
     parser.add_argument("--deterministic", action="store_true", help="Use deterministic local embeddings instead of Ollama")
     parser.add_argument("--reindex", action="store_true", help="Force a full Chroma re-index even if an index already exists")
-    parser.add_argument("--debug-retrieval", action="store_true", default=os.getenv("DEBUG", "").lower() == "true", help="Print vector, BM25, and RRF results separately")
+    parser.add_argument(
+        "--debug-retrieval",
+        action="store_true",
+        default=is_retrieval_debug_enabled(),
+        help="Print retrieval pipeline debug output (also enabled by RAG_DEBUG_RETRIEVAL=1)",
+    )
     return parser.parse_args()
+
+
+def _fused_results_title(
+    vector_results: list[RetrievedChunk],
+    bm25_results: list[RetrievedChunk],
+    fused_results: list[RetrievedChunk],
+) -> str:
+    if not vector_results and not bm25_results and fused_results:
+        if all(item.metadata.get("retrieval_method") == "identifier" for item in fused_results):
+            return "Exact Identifier Match"
+    return "RRF Results"
 
 
 def _print_ranked_results(title: str, results: list[RetrievedChunk]) -> None:
@@ -86,7 +103,7 @@ def main() -> None:
     assistant = RAGAssistant(retriever, answer_service)
 
     print("RAG Retrieval CLI")
-    print("Enter a question to retrieve top chunks. Press Enter on an empty line to exit.\n")
+    print("Enter a question. Press Enter on an empty line to exit.\n")
 
     while True:
         try:
@@ -99,11 +116,12 @@ def main() -> None:
             break
 
         if args.debug_retrieval:
+            os.environ["RAG_DEBUG_RETRIEVAL"] = "1"
             debug_k = min(max(args.top_k, 3), 5)
             vector_results, bm25_results, fused_results = retriever.retrieve_with_debug(query, k=debug_k)
             _print_ranked_results("Vector Results", vector_results)
             _print_ranked_results("BM25 Results", bm25_results)
-            _print_ranked_results("RRF Results", fused_results)
+            _print_ranked_results(_fused_results_title(vector_results, bm25_results, fused_results), fused_results)
 
         result = assistant.ask(query, k=args.top_k)
         answer = clean_answer_text(result.answer)

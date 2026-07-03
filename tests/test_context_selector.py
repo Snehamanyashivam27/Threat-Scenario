@@ -45,7 +45,16 @@ def _cisa_chunk() -> RetrievedChunk:
 
 
 def test_detect_attack_technique_lookup_intent():
-    assert detect_query_intent("What is Exploit Public-Facing Application?") == QueryIntent.ATTACK_TECHNIQUE_LOOKUP
+    assert detect_query_intent("What is the Exploit Public-Facing Application ATT&CK technique?") == QueryIntent.ATTACK_TECHNIQUE_LOOKUP
+
+
+def test_ambiguous_technique_name_defaults_to_concept_query():
+    assert detect_query_intent("What is Exploit Public-Facing Application?") == QueryIntent.GENERAL_CONCEPT_QUERY
+    assert detect_query_intent("What is Domain Accounts?") == QueryIntent.GENERAL_CONCEPT_QUERY
+
+
+def test_detect_product_query_intent_for_scalance():
+    assert detect_query_intent("Tell me about SCALANCE X200.") == QueryIntent.VENDOR_LOOKUP
 
 
 def test_context_selector_keeps_matching_techniques_only():
@@ -90,8 +99,8 @@ def test_context_builder_groups_frameworks():
     assert "Technique: Exploit Public-Facing Application (T1190)" in context
     assert "Technique: Exploit Public-Facing Application (T0819)" in context
     assert "Description:" in context
-    assert "Detection:" in context
-    assert "Mitigation:" in context
+    assert "Detection:" not in context
+    assert "Mitigation:" not in context
 
 
 class FakeRetriever:

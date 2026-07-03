@@ -1,6 +1,7 @@
 from .bm25_retriever import BM25Retriever
 from .context_selector import ContextSelector, QueryIntent, detect_query_intent
 from .hybrid_retriever import HybridRetriever
+from .identifier_lookup import has_query_identifiers, lookup_by_identifiers
 from .rrf import reciprocal_rank_fusion
 from .vector_retriever import VectorRetriever
 
@@ -11,5 +12,7 @@ __all__ = [
     "QueryIntent",
     "VectorRetriever",
     "detect_query_intent",
+    "has_query_identifiers",
+    "lookup_by_identifiers",
     "reciprocal_rank_fusion",
 ]

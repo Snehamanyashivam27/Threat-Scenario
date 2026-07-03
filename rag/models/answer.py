@@ -17,11 +17,13 @@ class AnswerResult:
 
 
 def dedupe_sources(sources: list[SourceReference]) -> list[SourceReference]:
-    by_source: dict[str, SourceReference] = {}
+    # Preserve one entry per (framework, identifier) so multi-technique context stays aligned.
+    seen: set[tuple[str, str]] = set()
+    deduped: list[SourceReference] = []
     for source in sources:
-        existing = by_source.get(source.document_source)
-        if existing is None:
-            by_source[source.document_source] = source
-        elif source.attack_id and not existing.attack_id:
-            by_source[source.document_source] = source
-    return list(by_source.values())
+        key = (source.document_source, source.attack_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(source)
+    return deduped

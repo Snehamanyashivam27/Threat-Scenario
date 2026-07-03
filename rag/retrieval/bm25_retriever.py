@@ -6,6 +6,7 @@ from collections import Counter
 from typing import Iterable
 
 from rag.models.document import ChunkDocument, RetrievedChunk
+from rag.retrieval.ranking import score_chunk_id_key
 
 
 class BM25Retriever:
@@ -24,14 +25,18 @@ class BM25Retriever:
     def retrieve(self, query: str, k: int = 5) -> list[RetrievedChunk]:
         if not self.chunks:
             return []
-        query_tokens = self._tokenize(query)
+        query_tokens = self._unique_query_tokens(query)
         if not query_tokens:
             return []
 
         scored = [(self._score(query_tokens, index), chunk) for index, chunk in enumerate(self.chunks)]
         scored = [(score, chunk) for score, chunk in scored if score > 0.0]
-        scored.sort(key=lambda item: item[0], reverse=True)
+        scored.sort(key=lambda item: score_chunk_id_key(item[0], item[1].chunk_id))
         return [self._to_hit(chunk, score) for score, chunk in scored[:k]]
+
+    def _unique_query_tokens(self, query: str) -> list[str]:
+        # Deduplicate expanded query terms so repeated expansion tokens do not inflate BM25 scores.
+        return list(dict.fromkeys(self._tokenize(query)))
 
     def _score(self, query_tokens: list[str], document_index: int) -> float:
         document_tokens = self.tokenized_chunks[document_index]
