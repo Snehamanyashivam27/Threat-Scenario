@@ -4,27 +4,26 @@ Retrieval-augmented generation (RAG) system for cybersecurity threat scenario re
 
 ## Architecture (high level)
 
-```text
+
 Knowledge base (JSON/CSV)
   → Contextual chunking
   → Deterministic context generation (index time)
   → Embeddings (Ollama nomic-embed-text on contextual + original text)
   → ChromaDB vector index + BM25 over original text
   → Hybrid retrieval (RRF) → Context selection → Qwen 2.5 answer
-```
+
 
 ## Prerequisites
 
 | Requirement | Version / notes |
 |-------------|-----------------|
-| **Python** | 3.12 or newer |
-| **Ollama** | Latest from [https://ollama.com](https://ollama.com) |
-| **Git** | To clone the repository |
-| **RAM** | 16 GB+ recommended for `qwen2.5:14b` locally |
+| Python | 3.12 or newer |
+| Ollama | Latest from [https://ollama.com](https://ollama.com) |
+|
 
 ### Knowledge base files (must be in project root)
 
-These files are **not** always included in the repo due to size. Place them in the `ThreatGenerator/` folder:
+These files are not always included in the repo due to size. Place them in the `ThreatGenerator/` folder:
 
 - `enterprise-attack.json` — MITRE Enterprise ATT&CK
 - `ics-attack.json` — MITRE ICS ATT&CK
@@ -54,7 +53,7 @@ Install from [https://ollama.com/download](https://ollama.com/download), then ve
 
 ## 2. Pull required Ollama models
 
-This project uses **two** Ollama models:
+This project uses two Ollama models:
 
 | Model | Purpose | Default env override |
 |-------|---------|----------------------|
@@ -63,69 +62,53 @@ This project uses **two** Ollama models:
 
 Pull both:
 
-```powershell
+
 ollama pull qwen2.5:14b
 ollama pull nomic-embed-text
-```
+
 
 Verify they are available:
 
-```powershell
+
 ollama list
-```
 
-Quick test:
 
-```powershell
-ollama run qwen2.5:14b "Say hello in one sentence."
-```
-
----
 
 ## 3. Clone the repository
 
-```powershell
+
 git clone https://git.dataliz9r.net/sneha/Threat-Scenario-Description-Generator.git
 cd Threat-Scenario-Description-Generator
-```
 
+
+---
 
 ## 4. Create a virtual environment
 
-```powershell
+
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
 
-If PowerShell blocks activation:
 
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
+
+
 
 On macOS/Linux:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-```
-
 ---
 
 ## 5. Install Python dependencies
 
-Install the package in editable mode:
+Install the packages :
 
 ```powershell
 python -m pip install --upgrade pip
 python -m pip install -e .
 ```
 
-For development (tests):
-
-```powershell
-python -m pip install -e ".[dev]"
-```
 
 ### Python packages installed
 
@@ -246,18 +229,9 @@ $env:DEBUG="true"
 
 ---
 
-## 9. Run tests
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-pytest
-```
 
-Tests use deterministic embeddings where possible and do not require Ollama for most cases.
-
----
-
-## 10. Project layout
+## 9. Project layout
 
 ```text
 ThreatGenerator/
@@ -278,58 +252,15 @@ ThreatGenerator/
 
 ---
 
-## 11. Troubleshooting
 
-### `Connection refused` to Ollama
+## 10. Git remote
 
-- Ensure Ollama is running (system tray on Windows).
-- Check: `curl http://localhost:11434/api/tags` or open that URL in a browser.
-
-### `model not found`
-
-```powershell
-ollama pull qwen2.5:14b
-ollama pull nomic-embed-text
-```
-
-### Embedding dimension mismatch
-
-You switched between `--deterministic` and Ollama embeddings. Rebuild:
-
-```powershell
-rag-cli --reindex
-```
-
-Or delete `.rag/chroma/` and run again.
-
-### Missing knowledge base files
-
-Ensure `enterprise-attack.json`, `ics-attack.json`, and `CISA_ICS_ADV_Master.csv` are in the project root (or pass `--root`).
-
-### Slow or out-of-memory during indexing
-
-- Reduce batch sizes: `RAG_INDEX_BATCH_SIZE=16`, `RAG_OLLAMA_EMBED_BATCH_SIZE=8`
-- Use a smaller chat model if needed: `RAG_OLLAMA_CHAT_MODEL=qwen2.5:7b`
-
----
-
-## 12. Git remote
-
-```text
 https://git.dataliz9r.net/sneha/Threat-Scenario-Description-Generator.git
-```
 
 Typical workflow:
 
-```powershell
 git add .
 git commit -m "Your message"
 git pull origin main --rebase
 git push origin main
-```
 
----
-
-## Thesis context
-
-This project implements the retrieval subsystem for a Master's thesis on threat scenario generation for industrial control systems. Later stages (structured JSON input, DPO fine-tuning, deterministic threat scenario generation) build on this retrieval layer.
