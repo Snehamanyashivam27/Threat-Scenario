@@ -89,13 +89,6 @@ git clone https://git.dataliz9r.net/sneha/Threat-Scenario-Description-Generator.
 cd Threat-Scenario-Description-Generator
 ```
 
-If you already have the project locally:
-
-```powershell
-cd "C:\Users\sneha\Downloads\ThreatGeneratorRAG\ThreatGenerator"
-```
-
----
 
 ## 4. Create a virtual environment
 
