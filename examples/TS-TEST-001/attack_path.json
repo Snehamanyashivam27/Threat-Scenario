@@ -1,0 +1,330 @@
+{
+  "components": [
+    {
+      "id": "cmp-maintenance-laptop-01",
+      "name": "Maintenance Laptop",
+      "type": "engineering_workstation",
+      "subtype": "portable_maintenance_device",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "maintenance_team",
+      "operator": "external_service_technician",
+      "physical_location": "maintenance_access_area",
+      "network_zone": "maintenance_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "maintenance_network_interface",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-station-switch-01"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {
+        "host_firewall": null,
+        "endpoint_protection": null,
+        "application_allowlisting": null,
+        "disk_encryption": null,
+        "secure_boot": null
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "maintenance"
+      ],
+      "active_in_states": [
+        "maintenance"
+      ],
+      "functions": [
+        "system_maintenance",
+        "device_configuration",
+        "diagnostics"
+      ],
+      "data_processed": [
+        "configuration_data",
+        "diagnostic_data",
+        "credentials"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "medium",
+      "security_classification": null,
+      "availability_requirement": null,
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "maintenance_team",
+      "assumptions": [
+        "The laptop is temporarily connected during maintenance.",
+        "The exact hardware, operating system, software versions and network addresses are not yet known."
+      ],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-station-switch-01",
+      "name": "RUGGEDCOM RST2428P",
+      "type": "industrial_ethernet_switch",
+      "subtype": "managed_ot_network_switch",
+      "vendor": "Siemens",
+      "manufacturer": "Siemens",
+      "product_family": "RUGGEDCOM",
+      "model": "RST2428P",
+      "part_number": "6GK6242-6PA00",
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": "Siemens SINEC OS",
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_network_administrator",
+      "physical_location": "substation",
+      "network_zone": "station_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "maintenance_uplink",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-maintenance-laptop-01"
+        },
+        {
+          "name": "station_network_port",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-station-rtu-01"
+        },
+        {
+          "name": "management_interface",
+          "interface_type": "logical_management_interface",
+          "physical": false,
+          "enabled": null,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": null
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": "ot_network_administrator"
+      },
+      "authorization": {
+        "roles": [
+          "network_administrator"
+        ],
+        "privileges": [
+          "network_configuration"
+        ]
+      },
+      "security_controls": {
+        "network_segmentation": true,
+        "access_control_lists": null,
+        "management_plane_restriction": null,
+        "secure_management_protocols": null,
+        "logging": null
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "industrial_network_switching",
+        "station_network_connectivity",
+        "traffic_forwarding",
+        "network_segmentation"
+      ],
+      "data_processed": [
+        "ot_network_traffic",
+        "management_traffic"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [
+        "power_supply",
+        "station_network"
+      ],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_network_team",
+      "assumptions": [
+        "The switch connects the maintenance access path with the station network.",
+        "Firmware version, enabled services, protocols and addresses are not yet known."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity",
+        "reference": "ICSA-26-188-05"
+      }
+    },
+    {
+      "id": "cmp-station-rtu-01",
+      "name": "SICAM 8 CPCI85",
+      "type": "remote_terminal_unit",
+      "subtype": "substation_automation_controller",
+      "vendor": "Siemens",
+      "manufacturer": "Siemens",
+      "product_family": "SICAM 8",
+      "model": "CPCI85 Central Processing/Communication",
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "substation_operator",
+      "physical_location": "substation",
+      "network_zone": "station_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "station_network_interface",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-station-switch-01"
+        },
+        {
+          "name": "field_interface",
+          "interface_type": "process_or_field_interface",
+          "physical": true,
+          "enabled": null,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": null
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": "ot_operations"
+      },
+      "authorization": {
+        "roles": [
+          "operator",
+          "maintenance_engineer"
+        ],
+        "privileges": []
+      },
+      "security_controls": {
+        "local_access_control": null,
+        "network_access_control": null,
+        "logging": null,
+        "configuration_integrity_protection": null
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "substation_automation",
+        "remote_monitoring",
+        "remote_control",
+        "process_data_acquisition",
+        "communication_with_field_devices"
+      ],
+      "data_processed": [
+        "process_measurements",
+        "status_information",
+        "control_commands",
+        "configuration_data"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [
+        "power_supply",
+        "station_network",
+        "field_devices"
+      ],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [
+        "The component represents the critical target of the test path.",
+        "Exact firmware, enabled protocols, connected field devices and process functions are not yet known."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity",
+        "reference": "ICSA-26-197-05"
+      }
+    }
+  ]
+}

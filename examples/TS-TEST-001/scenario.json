@@ -1,0 +1,162 @@
+{
+  "scenario_id": "TS-OT-TEST-001",
+  "title": "Compromise of a SICAM 8 RTU through the maintenance network",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+
+  "attacker_profile": {
+    "id": "attacker-external-01",
+    "type": "external_attacker",
+    "description": "An external attacker with access to a compromised maintenance device or valid maintenance credentials.",
+    "capabilities": [
+      "control_maintenance_device",
+      "use_compromised_credentials",
+      "access_ot_management_interfaces",
+      "basic_ot_network_knowledge"
+    ]
+  },
+
+  "entry_point": {
+    "component_id": "cmp-maintenance-laptop-01",
+    "component_name": "Maintenance Laptop",
+    "description": "A temporarily connected engineering and maintenance device that provides access to the OT maintenance network."
+  },
+
+  "target": {
+    "component_id": "cmp-station-rtu-01",
+    "component_name": "SICAM 8 CPCI85",
+    "description": "A critical RTU and substation automation controller that processes operational data and control commands."
+  },
+
+  "component_references": [
+    {
+      "component_id": "cmp-maintenance-laptop-01",
+      "component_name": "Maintenance Laptop",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-station-switch-01",
+      "component_name": "RUGGEDCOM RST2428P",
+      "role": "intermediate_network_component"
+    },
+    {
+      "component_id": "cmp-station-rtu-01",
+      "component_name": "SICAM 8 CPCI85",
+      "role": "critical_target"
+    }
+  ],
+
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "step-initial-access",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-maintenance-laptop-01",
+      "description": "The attacker gains control of the maintenance laptop or uses compromised maintenance credentials.",
+      "required_conditions": [
+        "The maintenance laptop is available to the attacker or has been compromised.",
+        "The maintenance laptop is connected during the maintenance operational state."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "step-access-network-component",
+      "name": "Access to the Network Component",
+      "source_component_id": "cmp-maintenance-laptop-01",
+      "target_component_id": "cmp-station-switch-01",
+      "description": "Through the active maintenance or management connection, the attacker reaches the RUGGEDCOM RST2428P switch running SINEC OS.",
+      "required_conditions": [
+        "The connection between the maintenance laptop and the switch is active.",
+        "The switch management interface is reachable from the maintenance connection.",
+        "The attacker satisfies the required authentication or access conditions."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "step-bypass-segmentation",
+      "name": "Manipulation or Bypass of Network Segmentation",
+      "source_component_id": "cmp-station-switch-01",
+      "target_component_id": "cmp-station-switch-01",
+      "description": "The attacker exploits an applicable weakness to modify or bypass network or access-control settings on the switch.",
+      "required_conditions": [
+        "At least one applicable vulnerability or insecure configuration is associated with the switch.",
+        "The vulnerability prerequisites are satisfied.",
+        "The attacker has sufficient access to interact with the affected service or function."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "step-lateral-movement",
+      "name": "Lateral Movement",
+      "source_component_id": "cmp-station-switch-01",
+      "target_component_id": "cmp-station-rtu-01",
+      "description": "After the network restrictions have been bypassed or modified, the SICAM 8 CPCI85 becomes reachable from the compromised network path.",
+      "required_conditions": [
+        "The connection between the switch and the RTU is active.",
+        "Network controls no longer prevent communication with the RTU.",
+        "A service or protocol on the RTU is reachable."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "step-compromise-control-component",
+      "name": "Compromise of the Control Component",
+      "source_component_id": "cmp-station-switch-01",
+      "target_component_id": "cmp-station-rtu-01",
+      "description": "The attacker exploits an applicable vulnerability or insecure product function affecting the SICAM 8 CPCI85.",
+      "required_conditions": [
+        "At least one applicable vulnerability or insecure function is associated with the RTU.",
+        "The deployed product version is affected.",
+        "The vulnerability prerequisites are satisfied."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "step-impact",
+      "name": "Impact",
+      "source_component_id": "cmp-station-rtu-01",
+      "target_component_id": "cmp-station-rtu-01",
+      "description": "The compromise impairs the availability or integrity of a protection, control, monitoring, or communication function.",
+      "required_conditions": [
+        "The compromised function influences an operational or communication process.",
+        "Existing safety or recovery controls do not prevent the resulting effect."
+      ]
+    }
+  ],
+
+  "path_component_ids": [
+    "cmp-maintenance-laptop-01",
+    "cmp-station-switch-01",
+    "cmp-station-rtu-01"
+  ],
+
+  "impact": {
+    "affected_component_id": "cmp-station-rtu-01",
+    "confidentiality": "low",
+    "integrity": "high",
+    "availability": "high",
+    "safety": "potential",
+    "impact_categories": [
+      "loss_of_control_integrity",
+      "loss_of_process_visibility",
+      "loss_of_component_availability",
+      "disruption_of_station_communication"
+    ]
+  },
+
+  "global_preconditions": [
+    "The system is operating in the maintenance state.",
+    "The maintenance laptop is connected to the RUGGEDCOM switch.",
+    "The RUGGEDCOM switch is connected to the SICAM 8 CPCI85.",
+    "The relevant interfaces and connections are enabled.",
+    "Applicable vulnerabilities or insecure configurations are identified during the vulnerability lookup stage."
+  ],
+
+  "assumptions": [
+    "This is a synthetic test scenario.",
+    "The attack path is not evidence that the complete chain has been observed in a real deployment.",
+    "Vulnerability identifiers and scores are maintained separately from the system component model.",
+    "A vulnerability may only enable an attack step when all of its technical prerequisites are satisfied."
+  ]
+}
