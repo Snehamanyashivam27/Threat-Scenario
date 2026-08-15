@@ -1,0 +1,274 @@
+{
+  "components": [
+    {
+      "id": "cmp-ws-003",
+      "name": "Engineering Workstation",
+      "type": "engineering_workstation",
+      "subtype": "portable_engineering_device",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "engineering_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "ot_nic",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-sw-003"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "controller_engineering"
+      ],
+      "data_processed": [
+        "engineering_credentials"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-sw-003",
+      "name": "Industrial Ethernet Switch",
+      "type": "industrial_ethernet_switch",
+      "subtype": "managed_ot_network_switch",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "cell_area_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "eng_port",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-ws-003"
+        },
+        {
+          "name": "device_port",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-target-003"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "traffic_forwarding"
+      ],
+      "data_processed": [
+        "ot_network_traffic"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "medium",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-target-003",
+      "name": "MELSEC WS0-GETH00200",
+      "type": "industrial_network_interface",
+      "subtype": "safety_ethernet_interface_module",
+      "vendor": "Mitsubishi Electric",
+      "manufacturer": "Mitsubishi Electric",
+      "product_family": "MELSEC WS Series",
+      "model": "WS0-GETH00200",
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "ot_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "ethernet_interface",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-sw-003"
+        }
+      ],
+      "services": [
+        "device_management"
+      ],
+      "communication_protocols": [
+        "ethernet"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": true,
+        "mechanisms": [
+          "device_login"
+        ],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [
+          "engineer"
+        ],
+        "privileges": [
+          "view_program",
+          "modify_parameters"
+        ]
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "program_parameter_management"
+      ],
+      "data_processed": [
+        "programs",
+        "parameters",
+        "authentication_exchange"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [
+        "The advisory states WS0-GETH00200, all serial numbers, are affected."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity",
+        "reference": "ICSA-24-030-03"
+      }
+    }
+  ]
+}

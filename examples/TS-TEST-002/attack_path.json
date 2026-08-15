@@ -1,0 +1,433 @@
+{
+  "components": [
+    {
+      "id": "cmp-supplier-workstation-01",
+      "name": "Supplier Engineering Workstation",
+      "type": "engineering_workstation",
+      "subtype": "portable_supplier_engineering_device",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [
+        "EcoStruxure Control Expert"
+      ],
+      "asset_owner": "external_supplier",
+      "operator": "supplier_engineer",
+      "physical_location": "maintenance_access_area",
+      "network_zone": "engineering_access_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "engineering_network_interface",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-industrial-switch-01"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": "external_supplier"
+      },
+      "authorization": {
+        "roles": [
+          "supplier_engineer"
+        ],
+        "privileges": [
+          "controller_engineering"
+        ]
+      },
+      "security_controls": {
+        "host_firewall": null,
+        "endpoint_protection": null,
+        "application_allowlisting": null,
+        "disk_encryption": null,
+        "secure_boot": null
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "maintenance"
+      ],
+      "active_in_states": [
+        "maintenance"
+      ],
+      "functions": [
+        "controller_engineering",
+        "device_configuration",
+        "diagnostics",
+        "project_upload_download"
+      ],
+      "data_processed": [
+        "engineering_project_data",
+        "controller_configuration",
+        "credentials"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "medium",
+      "security_classification": null,
+      "availability_requirement": null,
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "external_supplier",
+      "assumptions": [
+        "The workstation is temporarily connected during authorized maintenance.",
+        "The exact workstation hardware, operating-system version and network addresses are not specified."
+      ],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-industrial-switch-01",
+      "name": "Industrial Ethernet Switch",
+      "type": "industrial_ethernet_switch",
+      "subtype": "managed_ot_network_switch",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_network_administrator",
+      "physical_location": "process_control_area",
+      "network_zone": "control_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "engineering_port",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-supplier-workstation-01"
+        },
+        {
+          "name": "controller_port",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-modicon-m340-plc-01"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": "ot_network_administrator"
+      },
+      "authorization": {
+        "roles": [
+          "network_administrator"
+        ],
+        "privileges": [
+          "network_configuration"
+        ]
+      },
+      "security_controls": {
+        "network_segmentation": true,
+        "access_control_lists": null,
+        "management_plane_restriction": null,
+        "secure_management_protocols": null,
+        "logging": null
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "industrial_network_switching",
+        "engineering_network_connectivity",
+        "controller_network_connectivity",
+        "traffic_forwarding"
+      ],
+      "data_processed": [
+        "ot_network_traffic",
+        "engineering_traffic"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [
+        "power_supply",
+        "control_network"
+      ],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_network_team",
+      "assumptions": [
+        "The switch carries engineering traffic between the supplier workstation and the PLC.",
+        "No specific switch vulnerability is assumed for this scenario."
+      ],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-modicon-m340-plc-01",
+      "name": "Schneider Electric Modicon M340 PLC",
+      "type": "programmable_logic_controller",
+      "subtype": "process_controller",
+      "vendor": "Schneider Electric",
+      "manufacturer": "Schneider Electric",
+      "product_family": "Modicon M340",
+      "model": "BMXP34 series CPU",
+      "part_number": "BMXP34*",
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": "SV3.70",
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "process_operator",
+      "physical_location": "process_control_area",
+      "network_zone": "control_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "engineering_network_interface",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [
+            "Modbus/TCP"
+          ],
+          "connected_to": "cmp-industrial-switch-01"
+        },
+        {
+          "name": "control_output_interface",
+          "interface_type": "process_or_field_interface",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-cooling-water-pump-01"
+        }
+      ],
+      "services": [
+        "engineering_communication"
+      ],
+      "communication_protocols": [
+        "Modbus/TCP"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": true,
+        "mechanisms": [
+          "engineering_session_authentication"
+        ],
+        "credential_owner": "ot_operations"
+      },
+      "authorization": {
+        "roles": [
+          "operator",
+          "maintenance_engineer"
+        ],
+        "privileges": [
+          "controller_configuration",
+          "engineering_session"
+        ]
+      },
+      "security_controls": {
+        "local_access_control": null,
+        "network_access_control": null,
+        "logging": null,
+        "configuration_integrity_protection": null
+      },
+      "remote_access": {
+        "supported": true,
+        "methods": [
+          "engineering_workstation_connection"
+        ]
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "process_control",
+        "process_monitoring",
+        "controller_communication",
+        "control_logic_execution"
+      ],
+      "data_processed": [
+        "process_measurements",
+        "status_information",
+        "control_commands",
+        "controller_configuration"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [
+        "power_supply",
+        "control_network",
+        "field_devices"
+      ],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [
+        "The installed CPU belongs to the BMXP34 product range.",
+        "Firmware SV3.70 is installed.",
+        "A valid engineering user establishes a communication session during the scenario."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity_and_affected_version",
+        "reference": "ICSA-24-326-03"
+      }
+    },
+    {
+      "id": "cmp-cooling-water-pump-01",
+      "name": "Cooling-Water Circulation Pump",
+      "type": "physical_process_asset",
+      "subtype": "centrifugal_pump",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "plant_operations",
+      "operator": "process_operator",
+      "physical_location": "cooling_water_system",
+      "network_zone": null,
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "control_interface",
+          "interface_type": "process_or_field_interface",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-modicon-m340-plc-01"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {
+        "local_access_control": null,
+        "network_access_control": null,
+        "logging": null,
+        "configuration_integrity_protection": null
+      },
+      "remote_access": {
+        "supported": false,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "cooling_water_circulation",
+        "process_heat_removal"
+      ],
+      "data_processed": [],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "low",
+      "dependencies": [
+        "power_supply",
+        "controller_control_output"
+      ],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "plant_operations",
+      "assumptions": [
+        "The pump is controlled by the Modicon M340 PLC.",
+        "Loss or corruption of PLC control may degrade reliable cooling-water circulation."
+      ],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_physical_process_asset",
+        "reference": null
+      }
+    }
+  ]
+}

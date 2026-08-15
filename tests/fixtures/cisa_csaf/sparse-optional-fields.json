@@ -1,0 +1,46 @@
+{
+  "document": {
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "title": "Sparse Fixture Advisory",
+    "tracking": {
+      "id": "ICSA-99-001-01",
+      "current_release_date": "2024-01-01T00:00:00.000000Z",
+      "initial_release_date": "2024-01-01T00:00:00.000000Z",
+      "status": "final",
+      "version": "1"
+    },
+    "publisher": {
+      "category": "coordinator",
+      "name": "CISA",
+      "namespace": "https://www.cisa.gov/"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "category": "vendor",
+        "name": "Example Vendor",
+        "branches": [
+          {
+            "category": "product_name",
+            "name": "Example Product",
+            "product": {
+              "name": "Example Product",
+              "product_id": "CSAFPID-0001"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2099-0001",
+      "title": "CVE-2099-0001",
+      "product_status": {
+        "known_affected": ["CSAFPID-0001"]
+      }
+    }
+  ]
+}

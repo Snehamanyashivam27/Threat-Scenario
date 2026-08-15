@@ -1,0 +1,266 @@
+{
+  "components": [
+    {
+      "id": "cmp-ws-006",
+      "name": "Engineering Workstation",
+      "type": "engineering_workstation",
+      "subtype": "controls_engineering_station",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "engineering_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "ot_nic",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-sw-006"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "controller_programming"
+      ],
+      "data_processed": [],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-sw-006",
+      "name": "Industrial Ethernet Switch",
+      "type": "industrial_ethernet_switch",
+      "subtype": "managed_ot_network_switch",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "control_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "eng",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-ws-006"
+        },
+        {
+          "name": "plc",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-target-006"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "traffic_forwarding"
+      ],
+      "data_processed": [],
+      "safety_relevance": "indirect",
+      "criticality": "medium",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-target-006",
+      "name": "MELSEC iQ-R R04CPU",
+      "type": "programmable_logic_controller",
+      "subtype": "modular_plc_cpu",
+      "vendor": "Mitsubishi Electric",
+      "manufacturer": "Mitsubishi Electric",
+      "product_family": "MELSEC iQ-R Series",
+      "model": "R04CPU",
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": "53",
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "ot_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "ethernet",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-sw-006"
+        }
+      ],
+      "services": [
+        "controller_communication"
+      ],
+      "communication_protocols": [
+        "ethernet"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "process_control",
+        "logic_execution",
+        "industrial_communication"
+      ],
+      "data_processed": [
+        "process_measurements",
+        "control_commands",
+        "controller_program"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [
+        "The controller runs version 53.",
+        "This is intentionally outside the affected range of versions 52 and prior for the referenced DoS vulnerability."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity",
+        "reference": "ICSA-20-282-02"
+      }
+    }
+  ]
+}

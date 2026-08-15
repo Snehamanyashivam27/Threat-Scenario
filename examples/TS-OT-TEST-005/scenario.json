@@ -1,0 +1,136 @@
+{
+  "scenario_id": "TS-OT-TEST-005",
+  "title": "Local privilege-based compromise of a FactoryTalk View SE HMI server",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+  "attacker_profile": {
+    "id": "attacker-005",
+    "type": "external_attacker",
+    "description": "An attacker who obtains a low-privileged local Windows session on the HMI server.",
+    "capabilities": [
+      "use_compromised_support_account",
+      "obtain_local_user_session",
+      "modify_user_writable_files"
+    ]
+  },
+  "entry_point": {
+    "component_id": "cmp-ws-005",
+    "component_name": "Support Laptop",
+    "description": "Support device used for HMI maintenance."
+  },
+  "target": {
+    "component_id": "cmp-target-005",
+    "component_name": "FactoryTalk View SE HMI Server",
+    "description": "HMI server running FactoryTalk View SE 13.0."
+  },
+  "component_references": [
+    {
+      "component_id": "cmp-ws-005",
+      "component_name": "Support Laptop",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-target-005",
+      "component_name": "FactoryTalk View SE HMI Server",
+      "role": "critical_target"
+    },
+    {
+      "component_id": "cmp-process-005",
+      "component_name": "Process Controller",
+      "role": "downstream_operational_component"
+    }
+  ],
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "initial",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-ws-005",
+      "description": "The attacker compromises a support path.",
+      "required_conditions": [
+        "The support account or device is compromised."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "local",
+      "name": "Low-Privileged Local Access",
+      "source_component_id": "cmp-ws-005",
+      "target_component_id": "cmp-target-005",
+      "description": "The attacker obtains a low-privileged local Windows session on the HMI server.",
+      "required_conditions": [
+        "A low-privileged local user context is available."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "modify",
+      "name": "Modify HMI Project Files",
+      "source_component_id": "cmp-target-005",
+      "target_component_id": "cmp-target-005",
+      "description": "The attacker attempts to edit or replace HMI project files.",
+      "required_conditions": [
+        "The installed version is affected.",
+        "Folder permissions permit modification."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "execute",
+      "name": "Execution with Elevated Permissions",
+      "source_component_id": "cmp-target-005",
+      "target_component_id": "cmp-target-005",
+      "description": "Modified files are executed by an elevated account or service.",
+      "required_conditions": [
+        "The modified files are subsequently executed."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "effect",
+      "name": "Compromise HMI Functions",
+      "source_component_id": "cmp-target-005",
+      "target_component_id": "cmp-process-005",
+      "description": "HMI compromise may affect visualization or operator commands.",
+      "required_conditions": [
+        "The HMI remains connected to the controller."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "impact",
+      "name": "Impact",
+      "source_component_id": "cmp-target-005",
+      "target_component_id": "cmp-target-005",
+      "description": "The attack may impair HMI integrity or availability.",
+      "required_conditions": [
+        "The compromised HMI function is operationally relevant."
+      ]
+    }
+  ],
+  "path_component_ids": [
+    "cmp-ws-005",
+    "cmp-target-005",
+    "cmp-process-005"
+  ],
+  "impact": {
+    "affected_component_id": "cmp-target-005",
+    "confidentiality": "high",
+    "integrity": "high",
+    "availability": "high",
+    "safety": "potential",
+    "impact_categories": [
+      "hmi_server_compromise",
+      "loss_of_hmi_integrity"
+    ]
+  },
+  "global_preconditions": [
+    "FactoryTalk View SE 13.0 is installed.",
+    "The attacker has a low-privileged local user context."
+  ],
+  "assumptions": [
+    "Synthetic test scenario.",
+    "This case intentionally tests a local, not remote, vulnerability."
+  ]
+}

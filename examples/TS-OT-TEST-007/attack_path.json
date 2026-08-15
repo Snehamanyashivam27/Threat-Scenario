@@ -1,0 +1,288 @@
+{
+  "components": [
+    {
+      "id": "cmp-ws-007",
+      "name": "Operations Workstation",
+      "type": "engineering_workstation",
+      "subtype": "operations_client",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "operations_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "application_nic",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [
+            "HTTPS"
+          ],
+          "connected_to": "cmp-target-007"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [
+        "HTTPS"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "application_client"
+      ],
+      "data_processed": [],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-target-007",
+      "name": "Pavilion8 Server",
+      "type": "industrial_application_server",
+      "subtype": "model_predictive_control_server",
+      "vendor": "Rockwell Automation",
+      "manufacturer": "Rockwell Automation",
+      "product_family": "Pavilion8",
+      "model": "Pavilion8",
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [
+        {
+          "name": "Pavilion8",
+          "version": "5.10"
+        }
+      ],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "ot_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "client",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [
+            "HTTPS"
+          ],
+          "connected_to": "cmp-ws-007"
+        },
+        {
+          "name": "process",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-process-007"
+        }
+      ],
+      "services": [
+        "Pavilion8 application"
+      ],
+      "communication_protocols": [
+        "HTTPS"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": true,
+        "mechanisms": [
+          "application_account"
+        ],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [
+          "application_user"
+        ],
+        "privileges": [
+          "view_application_data"
+        ]
+      },
+      "security_controls": {
+        "role_based_access_control": true
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "model_predictive_control",
+        "process_optimization",
+        "application_configuration"
+      ],
+      "data_processed": [
+        "process_data",
+        "optimization_models",
+        "application_settings"
+      ],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [
+        "Pavilion8 version 5.10 is installed.",
+        "The attacker has a valid low-privileged application account."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity",
+        "reference": "ICSA-24-256-24"
+      }
+    },
+    {
+      "id": "cmp-process-007",
+      "name": "Process Control System",
+      "type": "control_system",
+      "subtype": "downstream_process_control_system",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "control_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "optimization",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-target-007"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "process_control"
+      ],
+      "data_processed": [
+        "process_measurements",
+        "optimization_setpoints"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    }
+  ]
+}

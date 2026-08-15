@@ -34,8 +34,10 @@ def extract_title(chunk: RetrievedChunk) -> str:
 def extract_fields(text: str) -> dict[str, str]:
     labels = [
         "Technique Name", "Technique", "ATT&CK ID", "Tactic", "Platforms", "Platform", "Description",
-        "Detection", "Mitigations", "Advisory", "Identifier", "Vendor", "Product", "Affected Products",
-        "CVE", "CWE", "Severity", "Sector",
+        "Detection", "Mitigations", "Advisory", "Identifier", "Vendor", "Product", "Product Family",
+        "Model", "Part Number", "Affected Products", "Affected Product Constraints",
+        "Affected Versions", "CVE", "CWE", "CVSS",
+        "Severity", "Sector", "Title", "Prerequisites", "Effect", "References", "ICS Advisory",
     ]
     label_pattern = "|".join(re.escape(label) for label in labels)
     pattern = re.compile(rf"({label_pattern}):\s*(.*?)(?=\s+(?:{label_pattern}):|$)", flags=re.IGNORECASE | re.DOTALL)

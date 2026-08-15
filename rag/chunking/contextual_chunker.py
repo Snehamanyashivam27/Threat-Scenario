@@ -19,6 +19,8 @@ class ContextualChunker:
             return [self._chunk_attack_pattern(document)]
         if kind == "cisa-ics-advisory":
             return [self._chunk_cisa_advisory(document)]
+        if kind == "cisa-csaf-cve":
+            return [self._chunk_cisa_csaf_cve(document)]
         return [self._chunk_generic(document)]
 
     def _chunk_attack_pattern(self, document: SourceDocument) -> ChunkDocument:
@@ -72,6 +74,23 @@ class ContextualChunker:
             title=document.title,
             original_text=text,
             metadata={"kind": "cisa-ics-advisory", **document.metadata},
+            hash=stable_hash(text),
+        )
+
+    def _chunk_cisa_csaf_cve(self, document: SourceDocument) -> ChunkDocument:
+        # One structured vulnerability document == one retrieval chunk (no random token splitting).
+        text = clean_text(document.text)
+        sections = dict(document.metadata.get("sections") or {})
+        references_raw = clean_text(str(sections.get("references") or ""))
+        references = [item.strip() for item in references_raw.split(";") if item.strip()]
+        return ChunkDocument(
+            document_id=document.document_id,
+            chunk_id=f"{document.document_id}::chunk-1",
+            source=document.source,
+            title=document.title,
+            original_text=text,
+            metadata={"kind": "cisa-csaf-cve", **document.metadata},
+            references=references,
             hash=stable_hash(text),
         )
 

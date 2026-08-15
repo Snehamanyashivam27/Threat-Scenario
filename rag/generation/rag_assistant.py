@@ -30,15 +30,52 @@ class RAGAssistant:
         intent = detect_query_intent(query)
         pool_size = self._retrieval_pool_size(intent)
         log_stage("query_processing", query=query, intent=intent.value, pool_size=pool_size)
-        retrieved_chunks = self.retriever.retrieve(query, k=pool_size)
+        retrieval_trace: dict[str, object] = {"query": query}
+        if hasattr(self.retriever, "retrieve_with_debug"):
+            vector_chunks, bm25_chunks, retrieved_chunks = self.retriever.retrieve_with_debug(
+                query, k=pool_size
+            )
+            retrieval_trace.update(
+                {
+                    "vector": self._trace_hits(vector_chunks),
+                    "bm25": self._trace_hits(bm25_chunks),
+                    "rrf": self._trace_hits(retrieved_chunks),
+                }
+            )
+        else:
+            retrieved_chunks = self.retriever.retrieve(query, k=pool_size)
         log_ranked_chunks("retriever_output", retrieved_chunks)
         selected_chunks = self.context_selector.select(query, retrieved_chunks, pool_size=pool_size)
+        retrieval_trace["selected"] = self._trace_hits(selected_chunks)
         log_ranked_chunks("context_selector_output", selected_chunks)
         context = self.context_builder.build(selected_chunks, query=query)
         log_stage("prompt_context", length=len(context))
         answer = self._generate_answer(query, context)
         sources = dedupe_sources(self.context_builder.build_sources(selected_chunks))
-        return AnswerResult(question=query, answer=answer, sources=sources)
+        retrieved_text = "\n\n".join(chunk.text for chunk in selected_chunks if chunk.text)
+        return AnswerResult(
+            question=query,
+            answer=answer,
+            sources=sources,
+            context=context,
+            retrieved_text=retrieved_text,
+            retrieval_trace=retrieval_trace,
+        )
+
+    @staticmethod
+    def _trace_hits(chunks) -> list[dict[str, object]]:
+        return [
+            {
+                "rank": rank,
+                "document_id": chunk.document_id,
+                "source": chunk.source,
+                "score": float(chunk.score),
+                "cves": sorted(extract_cves(chunk.text)),
+                # Discovery/debug only — never fed into narrator ContextSelector context.
+                "text_preview": (chunk.text or "")[:800],
+            }
+            for rank, chunk in enumerate(chunks, start=1)
+        ]
 
     @staticmethod
     def _retrieval_pool_size(intent: QueryIntent) -> int:

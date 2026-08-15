@@ -1,0 +1,69 @@
+{
+  "scenario_id": "TS-OT-CONSTRAINED-001",
+  "title": "Compromise of a SICAM 8 RTU through the maintenance network",
+  "operational_state": "maintenance",
+
+  "attacker_profile": {
+    "type": "external_attacker",
+    "description": "The attacker controls the maintenance laptop or uses compromised credentials."
+  },
+
+  "entry_point": {
+    "component_id": "cmp-maintenance-laptop-01"
+  },
+
+  "target": {
+    "component_id": "cmp-station-rtu-01"
+  },
+
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "step-initial-access",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-maintenance-laptop-01",
+      "description": "The attacker controls the maintenance laptop or uses compromised credentials."
+    },
+    {
+      "sequence": 2,
+      "step_id": "step-access-network-component",
+      "name": "Access to the Network Component",
+      "source_component_id": "cmp-maintenance-laptop-01",
+      "target_component_id": "cmp-station-switch-01",
+      "description": "The attacker reaches the RUGGEDCOM RST2428P."
+    },
+    {
+      "sequence": 3,
+      "step_id": "step-bypass-segmentation",
+      "name": "Manipulation or Bypass of Network Segmentation",
+      "source_component_id": "cmp-station-switch-01",
+      "target_component_id": "cmp-station-switch-01",
+      "description": "The attacker attempts to modify or bypass network and access controls."
+    },
+    {
+      "sequence": 4,
+      "step_id": "step-lateral-movement",
+      "name": "Lateral Movement",
+      "source_component_id": "cmp-station-switch-01",
+      "target_component_id": "cmp-station-rtu-01",
+      "description": "The SICAM 8 CPCI85 becomes accessible."
+    },
+    {
+      "sequence": 5,
+      "step_id": "step-compromise-control-component",
+      "name": "Compromise of the Control Component",
+      "source_component_id": "cmp-station-switch-01",
+      "target_component_id": "cmp-station-rtu-01",
+      "description": "The attacker attempts to compromise the SICAM 8 CPCI85."
+    },
+    {
+      "sequence": 6,
+      "step_id": "step-impact",
+      "name": "Impact",
+      "source_component_id": "cmp-station-rtu-01",
+      "target_component_id": "cmp-station-rtu-01",
+      "description": "The attacker may impair an operational control or communication function."
+    }
+  ]
+}

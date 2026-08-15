@@ -17,10 +17,17 @@ class ContextBuilder:
         ("Identifier", "identifier"),
         ("Vendor", "vendor"),
         ("Product", "product"),
+        ("Product Family", "product_family"),
+        ("Model", "model"),
+        ("Part Number", "part_number"),
+        ("Affected Versions", "affected_versions"),
         ("Severity", "severity"),
         ("CVE", "cve"),
         ("CWE", "cwe"),
         ("Affected Products", "affected_products"),
+        ("Prerequisites", "prerequisites"),
+        ("Effect", "effect"),
+        ("Description", "advisory_description"),
         ("Sector", "sector"),
     )
 
@@ -132,12 +139,38 @@ class ContextBuilder:
             "identifier": cls._advisory_field(fields.get("Identifier") or sections.get("advisory_id") or chunk.document_id or ""),
             "vendor": cls._advisory_field(fields.get("Vendor") or sections.get("vendor") or ""),
             "product": cls._advisory_field(fields.get("Product") or sections.get("product") or ""),
+            "product_family": cls._advisory_field(
+                fields.get("Product Family") or sections.get("product_family") or ""
+            ),
+            "model": cls._advisory_field(fields.get("Model") or sections.get("model") or ""),
+            "part_number": cls._advisory_field(
+                fields.get("Part Number") or sections.get("part_number") or ""
+            ),
+            "affected_versions": cls._advisory_field(
+                fields.get("Affected Versions") or sections.get("affected_versions") or "",
+                max_chars=1200,
+            ),
             "severity": cls._advisory_field(fields.get("Severity") or sections.get("severity") or ""),
             "cve": cls._advisory_field(fields.get("CVE") or sections.get("cves") or "", max_chars=2000),
             "cwe": cls._advisory_field(fields.get("CWE") or sections.get("cwes") or "", max_chars=2000),
             "affected_products": cls._advisory_field(
-                fields.get("Affected Products") or sections.get("products_affected") or "",
+                fields.get("Affected Products")
+                or sections.get("affected_products")
+                or sections.get("products_affected")
+                or "",
                 max_chars=1200,
+            ),
+            "prerequisites": cls._advisory_field(
+                fields.get("Prerequisites") or sections.get("prerequisites") or "",
+                max_chars=1200,
+            ),
+            "effect": cls._advisory_field(
+                fields.get("Effect") or sections.get("effects") or "",
+                max_chars=1200,
+            ),
+            "advisory_description": cls._advisory_field(
+                fields.get("Description") or sections.get("description") or "",
+                max_chars=1600,
             ),
             "sector": cls._advisory_field(fields.get("Sector") or sections.get("sector") or ""),
         }

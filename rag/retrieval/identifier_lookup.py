@@ -51,7 +51,13 @@ def lookup_by_identifiers(chunks: list[ChunkDocument], query: str) -> list[Retri
         if score > 0.0:
             scored.append((score, chunk))
 
-    scored.sort(key=lambda item: (item[0], item[1].chunk_id), reverse=True)
+    scored.sort(
+        key=lambda item: (
+            -item[0],
+            -_identifier_source_priority(item[1], identifiers),
+            item[1].chunk_id,
+        )
+    )
     return [_to_retrieved_chunk(chunk, score) for score, chunk in scored]
 
 
@@ -103,6 +109,21 @@ def _identifier_match_score(chunk: ChunkDocument, identifiers: QueryIdentifiers)
     return 0.0
 
 
+def _identifier_source_priority(
+    chunk: ChunkDocument,
+    identifiers: QueryIdentifiers,
+) -> int:
+    if not identifiers.cves:
+        return 0
+    kind = str(chunk.metadata.get("kind") or chunk.metadata.get("meta_kind") or "").lower()
+    source = str(chunk.source or "").lower()
+    if kind == "cisa-csaf-cve" or source == "cisa_csaf":
+        return 2
+    if "cisa" in source:
+        return 1
+    return 0
+
+
 def _chunk_attack_id(chunk: ChunkDocument) -> str:
     attack_id = chunk.attack_id or chunk.metadata.get("attack_id") or chunk.metadata.get("meta_attack_id") or ""
     if attack_id:
@@ -111,9 +132,18 @@ def _chunk_attack_id(chunk: ChunkDocument) -> str:
 
 
 def _chunk_advisory_id(chunk: ChunkDocument) -> str:
+    metadata_advisory = str(chunk.metadata.get("advisory_id") or chunk.metadata.get("meta_advisory_id") or "").upper()
+    if metadata_advisory and ADVISORY_ID_PATTERN.fullmatch(metadata_advisory):
+        return metadata_advisory
+
     document_id = str(chunk.document_id or "").upper()
     if document_id and ADVISORY_ID_PATTERN.fullmatch(document_id):
         return document_id
+    # CSAF per-CVE docs use "{advisory}::{cve}" document IDs.
+    if "::" in document_id:
+        prefix = document_id.split("::", 1)[0]
+        if ADVISORY_ID_PATTERN.fullmatch(prefix):
+            return prefix
 
     fields = extract_fields(chunk.original_text)
     for key in ("Identifier", "Advisory"):
@@ -122,9 +152,10 @@ def _chunk_advisory_id(chunk: ChunkDocument) -> str:
             return value
 
     sections = _chunk_sections(chunk)
-    advisory_id = str(sections.get("advisory_id") or "").upper()
-    if advisory_id and ADVISORY_ID_PATTERN.fullmatch(advisory_id):
-        return advisory_id
+    for key in ("headline", "advisory_id"):
+        advisory_id = str(sections.get(key) or "").upper()
+        if advisory_id and ADVISORY_ID_PATTERN.fullmatch(advisory_id):
+            return advisory_id
     return ""
 
 
@@ -137,6 +168,10 @@ def _chunk_identifier_values(chunk: ChunkDocument | RetrievedChunk, field_label:
         values.append(str(sections.get(key) or ""))
     metadata = chunk.metadata if isinstance(chunk, ChunkDocument) else chunk.metadata
     values.append(str(metadata.get(field_label.lower()) or metadata.get(f"meta_{field_label.lower()}") or ""))
+    if field_label == "CVE":
+        values.append(str(metadata.get("cve_id") or metadata.get("meta_cve_id") or ""))
+    if field_label == "CWE":
+        values.append(str(metadata.get("cwes") or metadata.get("meta_cwes") or ""))
     return " ".join(value for value in values if value)
 
 

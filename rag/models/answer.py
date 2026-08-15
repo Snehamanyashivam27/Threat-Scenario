@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass(slots=True)
@@ -14,6 +15,9 @@ class AnswerResult:
     question: str
     answer: str
     sources: list[SourceReference] = field(default_factory=list)
+    context: str = ""
+    retrieved_text: str = ""
+    retrieval_trace: dict[str, Any] = field(default_factory=dict)
 
 
 def dedupe_sources(sources: list[SourceReference]) -> list[SourceReference]:

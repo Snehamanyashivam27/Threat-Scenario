@@ -1,0 +1,287 @@
+{
+  "components": [
+    {
+      "id": "cmp-ws-005",
+      "name": "Support Laptop",
+      "type": "engineering_workstation",
+      "subtype": "portable_support_device",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "support_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "support_nic",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [
+            "RDP"
+          ],
+          "connected_to": "cmp-target-005"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [
+        "RDP"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "remote_support"
+      ],
+      "data_processed": [],
+      "safety_relevance": "indirect",
+      "criticality": "high",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    },
+    {
+      "id": "cmp-target-005",
+      "name": "FactoryTalk View SE HMI Server",
+      "type": "industrial_hmi_server",
+      "subtype": "windows_hmi_application_server",
+      "vendor": "Rockwell Automation",
+      "manufacturer": "Rockwell Automation",
+      "product_family": "FactoryTalk View Site Edition",
+      "model": "FactoryTalk View SE",
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": "Microsoft Windows",
+      "software": [
+        {
+          "name": "FactoryTalk View SE",
+          "version": "13.0"
+        }
+      ],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "ot_network",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "support",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [
+            "RDP"
+          ],
+          "connected_to": "cmp-ws-005"
+        },
+        {
+          "name": "control",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-process-005"
+        }
+      ],
+      "services": [
+        "Windows interactive session",
+        "FactoryTalk View SE"
+      ],
+      "communication_protocols": [
+        "RDP"
+      ],
+      "trust_relationships": [],
+      "authentication": {
+        "required": true,
+        "mechanisms": [
+          "Windows account"
+        ],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [
+          "local_user"
+        ],
+        "privileges": [
+          "read_hmi_project"
+        ]
+      },
+      "security_controls": {
+        "folder_permissions": "default"
+      },
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "hmi_visualization",
+        "project_execution"
+      ],
+      "data_processed": [
+        "hmi_project_files",
+        "operator_commands"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [
+        "FactoryTalk View SE 13.0 is installed.",
+        "The attacker has a low-privileged local Windows session."
+      ],
+      "source": {
+        "origin": "CISA_ICS_advisory_dataset",
+        "evidence": "product_identity",
+        "reference": "ICSA-24-226-06"
+      }
+    },
+    {
+      "id": "cmp-process-005",
+      "name": "Process Controller",
+      "type": "programmable_logic_controller",
+      "subtype": "generic_process_controller",
+      "vendor": null,
+      "manufacturer": null,
+      "product_family": null,
+      "model": null,
+      "part_number": null,
+      "serial_number": null,
+      "hardware_version": null,
+      "firmware_version": null,
+      "operating_system": null,
+      "software": [],
+      "asset_owner": "ot_operations",
+      "operator": "ot_operator",
+      "physical_location": "industrial_site",
+      "network_zone": "control_zone",
+      "network_level": null,
+      "hostname": null,
+      "ip_addresses": [],
+      "mac_addresses": [],
+      "interfaces": [
+        {
+          "name": "hmi",
+          "interface_type": "ethernet",
+          "physical": true,
+          "enabled": true,
+          "addresses": [],
+          "protocols": [],
+          "connected_to": "cmp-target-005"
+        }
+      ],
+      "services": [],
+      "communication_protocols": [],
+      "trust_relationships": [],
+      "authentication": {
+        "required": null,
+        "mechanisms": [],
+        "credential_owner": null
+      },
+      "authorization": {
+        "roles": [],
+        "privileges": []
+      },
+      "security_controls": {},
+      "remote_access": {
+        "supported": null,
+        "methods": []
+      },
+      "operational_states": [
+        "normal",
+        "maintenance"
+      ],
+      "active_in_states": [
+        "normal",
+        "maintenance"
+      ],
+      "functions": [
+        "process_control"
+      ],
+      "data_processed": [
+        "process_measurements",
+        "control_commands"
+      ],
+      "safety_relevance": "direct",
+      "criticality": "critical",
+      "security_classification": null,
+      "availability_requirement": "high",
+      "integrity_requirement": "high",
+      "confidentiality_requirement": "medium",
+      "dependencies": [],
+      "redundancy": null,
+      "lifecycle_status": null,
+      "maintenance_responsibility": "ot_operations",
+      "assumptions": [],
+      "source": {
+        "origin": "scenario_model",
+        "evidence": "synthetic_component",
+        "reference": null
+      }
+    }
+  ]
+}

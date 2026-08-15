@@ -1,0 +1,138 @@
+{
+  "scenario_id": "TS-OT-TEST-003",
+  "title": "Capture-replay compromise of a Mitsubishi MELSEC WS Ethernet interface",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+  "attacker_profile": {
+    "id": "attacker-003",
+    "type": "external_attacker",
+    "description": "An attacker with control of an engineering workstation and the ability to observe OT traffic.",
+    "capabilities": [
+      "control_engineering_workstation",
+      "observe_network_traffic",
+      "replay_captured_messages"
+    ]
+  },
+  "entry_point": {
+    "component_id": "cmp-ws-003",
+    "component_name": "Engineering Workstation",
+    "description": "Engineering device connected to the OT network."
+  },
+  "target": {
+    "component_id": "cmp-target-003",
+    "component_name": "MELSEC WS0-GETH00200",
+    "description": "MELSEC WS Ethernet interface module."
+  },
+  "component_references": [
+    {
+      "component_id": "cmp-ws-003",
+      "component_name": "Engineering Workstation",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-sw-003",
+      "component_name": "Industrial Ethernet Switch",
+      "role": "intermediate_network_component"
+    },
+    {
+      "component_id": "cmp-target-003",
+      "component_name": "MELSEC WS0-GETH00200",
+      "role": "critical_target"
+    }
+  ],
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "initial",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-ws-003",
+      "description": "The attacker gains control of the engineering workstation.",
+      "required_conditions": [
+        "The workstation is compromised."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "reach",
+      "name": "Access to Target Network Path",
+      "source_component_id": "cmp-ws-003",
+      "target_component_id": "cmp-sw-003",
+      "description": "The attacker reaches the network path to the MELSEC module.",
+      "required_conditions": [
+        "The path is active."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "capture",
+      "name": "Capture Authentication Exchange",
+      "source_component_id": "cmp-sw-003",
+      "target_component_id": "cmp-target-003",
+      "description": "The attacker captures a legitimate authentication exchange.",
+      "required_conditions": [
+        "The attacker can observe traffic.",
+        "A legitimate login occurs."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "replay",
+      "name": "Authentication Replay",
+      "source_component_id": "cmp-sw-003",
+      "target_component_id": "cmp-target-003",
+      "description": "The attacker replays captured authentication data to attempt unauthorized login.",
+      "required_conditions": [
+        "The captured exchange is replayable.",
+        "The management service is reachable."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "tamper",
+      "name": "Program or Parameter Tampering",
+      "source_component_id": "cmp-target-003",
+      "target_component_id": "cmp-target-003",
+      "description": "The attacker attempts to disclose or modify programs and parameters.",
+      "required_conditions": [
+        "Authentication bypass succeeds."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "impact",
+      "name": "Impact",
+      "source_component_id": "cmp-target-003",
+      "target_component_id": "cmp-target-003",
+      "description": "Unauthorized modification may impair control or safety integrity.",
+      "required_conditions": [
+        "Modified parameters influence an operational function."
+      ]
+    }
+  ],
+  "path_component_ids": [
+    "cmp-ws-003",
+    "cmp-sw-003",
+    "cmp-target-003"
+  ],
+  "impact": {
+    "affected_component_id": "cmp-target-003",
+    "confidentiality": "medium",
+    "integrity": "high",
+    "availability": "medium",
+    "safety": "potential",
+    "impact_categories": [
+      "unauthorized_access",
+      "parameter_tampering"
+    ]
+  },
+  "global_preconditions": [
+    "The engineering workstation is connected.",
+    "The module is reachable.",
+    "A legitimate authentication exchange occurs."
+  ],
+  "assumptions": [
+    "Synthetic test scenario.",
+    "A vulnerability may only enable a step when its prerequisites are satisfied."
+  ]
+}

@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import Any, Iterable
 
 from rag.models.document import SourceDocument
+from rag.scenario.product_evidence import evidence_from_csv_product, format_product_evidence_blocks
 from rag.utils.text import clean_text, dedupe_preserve_order
 
 
@@ -139,8 +140,22 @@ def parse_cisa_advisories(rows: Iterable[dict[str, str]], source_name: str) -> l
             "headline": headline,
         }
 
+        csv_evidence = []
+        for product_name in [product, products_affected]:
+            if not product_name:
+                continue
+            csv_evidence.append(
+                evidence_from_csv_product(
+                    cve_id="",
+                    advisory_id=advisory_id or headline or title,
+                    product_name=product_name,
+                    vendor=vendor,
+                    source=source_name,
+                )
+            )
         text_parts = [
             f"Advisory: {title}",
+            f"ICS Advisory: {headline}" if headline else "",
             f"Identifier: {advisory_id}" if advisory_id else "",
             f"Vendor: {vendor}" if vendor else "",
             f"Product: {product}" if product else "",
@@ -149,6 +164,7 @@ def parse_cisa_advisories(rows: Iterable[dict[str, str]], source_name: str) -> l
             f"CWE: {cwes}" if cwes else "",
             f"Severity: {severity}" if severity else "",
             f"Sector: {sector}" if sector else "",
+            format_product_evidence_blocks(csv_evidence),
         ]
 
         documents.append(

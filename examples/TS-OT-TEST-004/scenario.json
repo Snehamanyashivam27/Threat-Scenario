@@ -1,0 +1,136 @@
+{
+  "scenario_id": "TS-OT-TEST-004",
+  "title": "Remote compromise of a Rockwell 1756-EN2T through a crafted CIP request",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+  "attacker_profile": {
+    "id": "attacker-004",
+    "type": "external_attacker",
+    "description": "An attacker controlling an engineering workstation with network reachability to the Logix module.",
+    "capabilities": [
+      "control_engineering_workstation",
+      "send_crafted_network_messages",
+      "use_cip_protocol"
+    ]
+  },
+  "entry_point": {
+    "component_id": "cmp-ws-004",
+    "component_name": "Engineering Workstation",
+    "description": "Controls engineering workstation."
+  },
+  "target": {
+    "component_id": "cmp-target-004",
+    "component_name": "1756-EN2T Series A",
+    "description": "Logix Ethernet communication module running 5.008."
+  },
+  "component_references": [
+    {
+      "component_id": "cmp-ws-004",
+      "component_name": "Engineering Workstation",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-sw-004",
+      "component_name": "Cell/Area Ethernet Switch",
+      "role": "intermediate_network_component"
+    },
+    {
+      "component_id": "cmp-target-004",
+      "component_name": "1756-EN2T Series A",
+      "role": "critical_target"
+    }
+  ],
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "initial",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-ws-004",
+      "description": "The attacker gains control of an engineering workstation.",
+      "required_conditions": [
+        "The workstation is compromised."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "network",
+      "name": "Access to Cell/Area Network",
+      "source_component_id": "cmp-ws-004",
+      "target_component_id": "cmp-sw-004",
+      "description": "The attacker reaches the EtherNet/IP network.",
+      "required_conditions": [
+        "The path is active."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "reach",
+      "name": "Reach Communication Module",
+      "source_component_id": "cmp-sw-004",
+      "target_component_id": "cmp-target-004",
+      "description": "The attacker reaches the 1756-EN2T over the industrial network.",
+      "required_conditions": [
+        "CIP communication is permitted."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "crafted",
+      "name": "Malicious CIP Request",
+      "source_component_id": "cmp-sw-004",
+      "target_component_id": "cmp-target-004",
+      "description": "The attacker sends a maliciously crafted CIP request to the module.",
+      "required_conditions": [
+        "The deployed firmware is affected.",
+        "CIP messages can reach the module."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "compromise",
+      "name": "Compromise Communication Module",
+      "source_component_id": "cmp-target-004",
+      "target_component_id": "cmp-target-004",
+      "description": "Successful exploitation may allow attacker-controlled code execution.",
+      "required_conditions": [
+        "The crafted request triggers an applicable vulnerability."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "impact",
+      "name": "Impact",
+      "source_component_id": "cmp-target-004",
+      "target_component_id": "cmp-target-004",
+      "description": "Compromise may impair confidentiality, integrity, or availability of industrial communications.",
+      "required_conditions": [
+        "The module is used for active controller communications."
+      ]
+    }
+  ],
+  "path_component_ids": [
+    "cmp-ws-004",
+    "cmp-sw-004",
+    "cmp-target-004"
+  ],
+  "impact": {
+    "affected_component_id": "cmp-target-004",
+    "confidentiality": "high",
+    "integrity": "high",
+    "availability": "high",
+    "safety": "potential",
+    "impact_categories": [
+      "remote_code_execution",
+      "communication_module_compromise"
+    ]
+  },
+  "global_preconditions": [
+    "The module is reachable using CIP/EtherNet/IP.",
+    "Series A firmware 5.008 is deployed."
+  ],
+  "assumptions": [
+    "Synthetic test scenario.",
+    "Product, version, and prerequisite checks must all match."
+  ]
+}

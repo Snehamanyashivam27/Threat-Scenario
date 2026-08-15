@@ -21,6 +21,8 @@ dev = ["pytest>=8.0"]
 
 [project.scripts]
 rag-cli = "rag.cli:main"
+scenario-cli = "rag.scenario.cli:main"
+ingest-cisa-csaf = "rag.ingest_cisa_csaf:main"
 
 [tool.setuptools.packages.find]
 include = ["rag*"]

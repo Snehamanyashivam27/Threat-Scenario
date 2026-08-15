@@ -1,0 +1,22 @@
+{
+  "components": [
+    {
+      "id": "cmp-maintenance-laptop-01",
+      "name": "Maintenance Laptop",
+      "type": "engineering_workstation"
+    },
+    {
+      "id": "cmp-station-switch-01",
+      "name": "RUGGEDCOM RST2428P",
+      "type": "industrial_ethernet_switch",
+      "vendor": "Siemens",
+      "operating_system": "SINEC OS"
+    },
+    {
+      "id": "cmp-station-rtu-01",
+      "name": "SICAM 8 CPCI85",
+      "type": "remote_terminal_unit",
+      "vendor": "Siemens"
+    }
+  ]
+}

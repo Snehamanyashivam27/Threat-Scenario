@@ -7,6 +7,7 @@ from typing import Iterable
 from rag.context.cache import ContextCache
 from rag.context.strategies import (
     CisaAdvisoryContextStrategy,
+    CisaCsafCveContextStrategy,
     EnterpriseAttackContextStrategy,
     GenericContextStrategy,
     IcsAttackContextStrategy,
@@ -30,6 +31,7 @@ class DeterministicContextGenerator(ContextGenerator):
         self.strategies = strategies or [
             EnterpriseAttackContextStrategy(),
             IcsAttackContextStrategy(),
+            CisaCsafCveContextStrategy(),
             CisaAdvisoryContextStrategy(),
             GenericContextStrategy(),
         ]

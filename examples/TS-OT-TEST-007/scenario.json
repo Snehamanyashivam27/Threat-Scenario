@@ -1,0 +1,137 @@
+{
+  "scenario_id": "TS-OT-TEST-007",
+  "title": "Unauthorized settings modification in Rockwell Automation Pavilion8",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+  "attacker_profile": {
+    "id": "attacker-007",
+    "type": "external_attacker",
+    "description": "An attacker with valid low-privileged Pavilion8 credentials and access to the application network.",
+    "capabilities": [
+      "use_compromised_credentials",
+      "access_application_service",
+      "interact_with_application_functions"
+    ]
+  },
+  "entry_point": {
+    "component_id": "cmp-ws-007",
+    "component_name": "Operations Workstation",
+    "description": "Operations workstation used to access Pavilion8."
+  },
+  "target": {
+    "component_id": "cmp-target-007",
+    "component_name": "Pavilion8 Server",
+    "description": "Pavilion8 server running version 5.10."
+  },
+  "component_references": [
+    {
+      "component_id": "cmp-ws-007",
+      "component_name": "Operations Workstation",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-target-007",
+      "component_name": "Pavilion8 Server",
+      "role": "critical_target"
+    },
+    {
+      "component_id": "cmp-process-007",
+      "component_name": "Process Control System",
+      "role": "downstream_operational_component"
+    }
+  ],
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "initial",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-ws-007",
+      "description": "The attacker obtains access to an operations workstation and valid low-privileged Pavilion8 credentials.",
+      "required_conditions": [
+        "The workstation or user account is compromised.",
+        "The application is reachable."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "login",
+      "name": "Application Access",
+      "source_component_id": "cmp-ws-007",
+      "target_component_id": "cmp-target-007",
+      "description": "The attacker authenticates to Pavilion8 using the compromised low-privileged account.",
+      "required_conditions": [
+        "Valid low-privileged credentials are available."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "restricted",
+      "name": "Access to Restricted Functions",
+      "source_component_id": "cmp-target-007",
+      "target_component_id": "cmp-target-007",
+      "description": "The attacker attempts to access functions or information beyond the intended privileges of the account.",
+      "required_conditions": [
+        "An applicable authorization weakness affects the deployed version."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "settings",
+      "name": "Unauthorized Settings Modification",
+      "source_component_id": "cmp-target-007",
+      "target_component_id": "cmp-target-007",
+      "description": "The attacker attempts to view sensitive information or change application settings beyond intended privileges.",
+      "required_conditions": [
+        "Authorization controls are incorrectly enforced."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "effect",
+      "name": "Effect on Optimization Functions",
+      "source_component_id": "cmp-target-007",
+      "target_component_id": "cmp-process-007",
+      "description": "Unauthorized settings changes may affect model predictive control or optimization functions.",
+      "required_conditions": [
+        "Modified settings influence active optimization functions."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "impact",
+      "name": "Impact",
+      "source_component_id": "cmp-target-007",
+      "target_component_id": "cmp-target-007",
+      "description": "The attack may expose sensitive process information or impair optimization integrity.",
+      "required_conditions": [
+        "The accessed information or settings are operationally relevant."
+      ]
+    }
+  ],
+  "path_component_ids": [
+    "cmp-ws-007",
+    "cmp-target-007",
+    "cmp-process-007"
+  ],
+  "impact": {
+    "affected_component_id": "cmp-target-007",
+    "confidentiality": "high",
+    "integrity": "high",
+    "availability": "medium",
+    "safety": "potential",
+    "impact_categories": [
+      "sensitive_information_exposure",
+      "unauthorized_settings_change"
+    ]
+  },
+  "global_preconditions": [
+    "Pavilion8 version 5.10 is deployed.",
+    "The attacker has a valid low-privileged application account.",
+    "The application is reachable."
+  ],
+  "assumptions": [
+    "Synthetic test scenario.",
+    "This case tests authorization-related vulnerability selection and low-privilege prerequisites."
+  ]
+}

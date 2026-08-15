@@ -1,0 +1,134 @@
+{
+  "scenario_id": "TS-OT-TEST-006",
+  "title": "Attempted denial of service against a MELSEC iQ-R controller with a non-affected version",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+  "attacker_profile": {
+    "id": "attacker-006",
+    "type": "external_attacker",
+    "description": "An attacker controlling an engineering workstation with network access to the PLC.",
+    "capabilities": [
+      "control_engineering_workstation",
+      "send_crafted_network_packets"
+    ]
+  },
+  "entry_point": {
+    "component_id": "cmp-ws-006",
+    "component_name": "Engineering Workstation",
+    "description": "Controls engineering workstation."
+  },
+  "target": {
+    "component_id": "cmp-target-006",
+    "component_name": "MELSEC iQ-R R04CPU",
+    "description": "R04CPU running version 53."
+  },
+  "component_references": [
+    {
+      "component_id": "cmp-ws-006",
+      "component_name": "Engineering Workstation",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-sw-006",
+      "component_name": "Industrial Ethernet Switch",
+      "role": "intermediate_network_component"
+    },
+    {
+      "component_id": "cmp-target-006",
+      "component_name": "MELSEC iQ-R R04CPU",
+      "role": "critical_target"
+    }
+  ],
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "initial",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-ws-006",
+      "description": "The attacker gains control of an engineering workstation.",
+      "required_conditions": [
+        "The workstation is compromised."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "network",
+      "name": "Access to PLC Network",
+      "source_component_id": "cmp-ws-006",
+      "target_component_id": "cmp-sw-006",
+      "description": "The attacker reaches the PLC network.",
+      "required_conditions": [
+        "The path is active."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "reach",
+      "name": "Reach Controller",
+      "source_component_id": "cmp-sw-006",
+      "target_component_id": "cmp-target-006",
+      "description": "The attacker reaches the R04CPU over the industrial network.",
+      "required_conditions": [
+        "The controller is network reachable."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "crafted",
+      "name": "Crafted Packet Attack",
+      "source_component_id": "cmp-sw-006",
+      "target_component_id": "cmp-target-006",
+      "description": "The attacker attempts to send a specially crafted packet intended to disrupt controller execution or communications.",
+      "required_conditions": [
+        "The targeted vulnerability affects the deployed version."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "dos",
+      "name": "Attempted Denial of Service",
+      "source_component_id": "cmp-target-006",
+      "target_component_id": "cmp-target-006",
+      "description": "The attacker attempts to force the controller into an error or denial-of-service condition.",
+      "required_conditions": [
+        "A valid vulnerability matching the deployed version is triggered."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "impact",
+      "name": "Impact",
+      "source_component_id": "cmp-target-006",
+      "target_component_id": "cmp-target-006",
+      "description": "If successful, loss of controller execution or communication could impair process availability.",
+      "required_conditions": [
+        "The attack causes controller or communication unavailability."
+      ]
+    }
+  ],
+  "path_component_ids": [
+    "cmp-ws-006",
+    "cmp-sw-006",
+    "cmp-target-006"
+  ],
+  "impact": {
+    "affected_component_id": "cmp-target-006",
+    "confidentiality": "low",
+    "integrity": "medium",
+    "availability": "high",
+    "safety": "potential",
+    "impact_categories": [
+      "attempted_loss_of_controller_availability"
+    ]
+  },
+  "global_preconditions": [
+    "The target is an R04CPU running version 53.",
+    "The attacker can reach the controller network."
+  ],
+  "assumptions": [
+    "Synthetic negative test.",
+    "The system should reject a CVE when the affected version range excludes the deployed version.",
+    "The threat story should remain even if no CVE is validated."
+  ]
+}

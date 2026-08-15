@@ -1,0 +1,164 @@
+{
+  "scenario_id": "TS-OT-TEST-002",
+  "title": "Man-in-the-middle compromise of a Modicon M340 engineering session",
+  "scenario_type": "attack_path_test",
+  "operational_state": "maintenance",
+  "attacker_profile": {
+    "id": "attacker-external-02",
+    "type": "external_attacker",
+    "description": "An external attacker with access to a compromised supplier engineering workstation and the ability to position themselves on the controller communication path.",
+    "capabilities": [
+      "control_supplier_engineering_workstation",
+      "access_ot_engineering_network",
+      "perform_man_in_the_middle_attack",
+      "observe_and_modify_network_traffic",
+      "basic_plc_engineering_knowledge"
+    ]
+  },
+  "entry_point": {
+    "component_id": "cmp-supplier-workstation-01",
+    "component_name": "Supplier Engineering Workstation",
+    "description": "A temporarily connected supplier engineering workstation used to configure and maintain the Modicon M340 PLC."
+  },
+  "target": {
+    "component_id": "cmp-modicon-m340-plc-01",
+    "component_name": "Schneider Electric Modicon M340 PLC",
+    "description": "A critical process controller running firmware SV3.70 and controlling the cooling-water circulation pump."
+  },
+  "component_references": [
+    {
+      "component_id": "cmp-supplier-workstation-01",
+      "component_name": "Supplier Engineering Workstation",
+      "role": "entry_point"
+    },
+    {
+      "component_id": "cmp-industrial-switch-01",
+      "component_name": "Industrial Ethernet Switch",
+      "role": "intermediate_network_component"
+    },
+    {
+      "component_id": "cmp-modicon-m340-plc-01",
+      "component_name": "Schneider Electric Modicon M340 PLC",
+      "role": "critical_target"
+    },
+    {
+      "component_id": "cmp-cooling-water-pump-01",
+      "component_name": "Cooling-Water Circulation Pump",
+      "role": "affected_physical_process_asset"
+    }
+  ],
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "step-initial-access",
+      "name": "Initial Access",
+      "source_component_id": null,
+      "target_component_id": "cmp-supplier-workstation-01",
+      "description": "The attacker gains control of the supplier engineering workstation or obtains access to its active engineering environment.",
+      "required_conditions": [
+        "The supplier engineering workstation is available to the attacker or has been compromised.",
+        "The workstation is connected during the maintenance operational state."
+      ]
+    },
+    {
+      "sequence": 2,
+      "step_id": "step-access-engineering-network",
+      "name": "Access to the Engineering Network",
+      "source_component_id": "cmp-supplier-workstation-01",
+      "target_component_id": "cmp-industrial-switch-01",
+      "description": "Using the compromised engineering workstation, the attacker gains access to the industrial network path used for communication with the Modicon M340 PLC.",
+      "required_conditions": [
+        "The engineering workstation is connected to the industrial switch.",
+        "The controller communication path is reachable from the engineering workstation."
+      ]
+    },
+    {
+      "sequence": 3,
+      "step_id": "step-position-mitm",
+      "name": "Position on the Communication Path",
+      "source_component_id": "cmp-industrial-switch-01",
+      "target_component_id": "cmp-modicon-m340-plc-01",
+      "description": "The attacker positions themselves on the communication path between the engineering workstation and the Modicon M340 PLC.",
+      "required_conditions": [
+        "The attacker can observe and modify traffic between the engineering workstation and the PLC.",
+        "The PLC is reachable through the active industrial network path."
+      ]
+    },
+    {
+      "sequence": 4,
+      "step_id": "step-valid-engineering-session",
+      "name": "Intercept Valid Engineering Session",
+      "source_component_id": "cmp-supplier-workstation-01",
+      "target_component_id": "cmp-modicon-m340-plc-01",
+      "description": "A valid engineering user establishes a communication session with the Modicon M340 PLC while the attacker remains positioned on the communication path.",
+      "required_conditions": [
+        "A valid user initiates an engineering communication session.",
+        "The attacker remains in a man-in-the-middle position during session establishment."
+      ]
+    },
+    {
+      "sequence": 5,
+      "step_id": "step-exploit-controller-communication",
+      "name": "Compromise of Controller Communication",
+      "source_component_id": "cmp-industrial-switch-01",
+      "target_component_id": "cmp-modicon-m340-plc-01",
+      "description": "The attacker exploits an applicable weakness in the controller communication to compromise the confidentiality or integrity of the engineering session and potentially affect controller availability.",
+      "required_conditions": [
+        "The deployed Modicon M340 CPU version is affected by the applicable vulnerability.",
+        "The attacker is positioned between the controller and engineering workstation.",
+        "A valid user is establishing the communication session.",
+        "The vulnerability prerequisites are satisfied."
+      ]
+    },
+    {
+      "sequence": 6,
+      "step_id": "step-process-impact",
+      "name": "Impact on the Physical Process",
+      "source_component_id": "cmp-modicon-m340-plc-01",
+      "target_component_id": "cmp-cooling-water-pump-01",
+      "description": "Loss of controller availability or integrity may interrupt or degrade reliable automated control of the cooling-water circulation pump.",
+      "required_conditions": [
+        "The compromised controller communication affects controller availability or integrity.",
+        "The PLC's control function influences operation of the cooling-water circulation pump.",
+        "Existing process protection or recovery controls do not prevent the resulting operational effect."
+      ]
+    }
+  ],
+  "path_component_ids": [
+    "cmp-supplier-workstation-01",
+    "cmp-industrial-switch-01",
+    "cmp-modicon-m340-plc-01",
+    "cmp-cooling-water-pump-01"
+  ],
+  "impact": {
+    "affected_component_id": "cmp-cooling-water-pump-01",
+    "confidentiality": "medium",
+    "integrity": "high",
+    "availability": "high",
+    "safety": "potential",
+    "impact_categories": [
+      "loss_of_controller_communication_integrity",
+      "loss_of_controller_communication_confidentiality",
+      "loss_of_controller_availability",
+      "degradation_of_cooling_water_control"
+    ]
+  },
+  "global_preconditions": [
+    "The system is operating in the maintenance state.",
+    "The supplier engineering workstation is connected to the industrial network.",
+    "The industrial switch provides a communication path to the Modicon M340 PLC.",
+    "The Modicon M340 PLC is running firmware SV3.70.",
+    "A valid engineering user establishes a communication session with the PLC.",
+    "The attacker can position themselves on the communication path between the engineering workstation and PLC.",
+    "Applicable vulnerabilities are identified during the vulnerability lookup stage."
+  ],
+  "assumptions": [
+    "This is a synthetic test scenario.",
+    "The attack path is not evidence that the complete chain has been observed in a real deployment.",
+    "The Modicon M340 CPU belongs to the affected BMXP34 product range.",
+    "Firmware SV3.70 is installed for deterministic vulnerability-applicability testing.",
+    "Vulnerability identifiers and scores are maintained separately from the system component model.",
+    "A vulnerability may only enable an attack step when all of its technical prerequisites are satisfied.",
+    "The cooling-water circulation pump is a synthetic downstream physical-process asset controlled by the PLC."
+  ]
+}

@@ -29,6 +29,7 @@ def build_retriever(root: Path, deterministic: bool = False, reindex: bool = Fal
         root / "enterprise-attack.json",
         root / "ics-attack.json",
         root / "CISA_ICS_ADV_Master.csv",
+        csaf_dir=root / "data" / "cisa_csaf",
     )
     if reindex or not pipeline.store.has_indexed_chunks():
         print(f"Indexing {len(chunks)} chunks into '{pipeline.store.collection_name}'...", flush=True)

@@ -72,6 +72,20 @@ def _attack_chunk(attack_id: str, source: str) -> ChunkDocument:
     )
 
 
+def _csaf_cve_chunk(cve: str) -> ChunkDocument:
+    return ChunkDocument(
+        document_id=f"ICSA-30-001-01::{cve}",
+        chunk_id=f"ICSA-30-001-01::{cve}::chunk-1",
+        source="cisa_csaf",
+        title=cve,
+        original_text=(
+            f"CVE: {cve} Advisory: ICSA-30-001-01 Vendor: Acme "
+            "Product: FlowMaster Description: Per-CVE technical details."
+        ),
+        metadata={"kind": "cisa-csaf-cve", "cve_id": cve},
+    )
+
+
 def test_identifier_lookup_returns_matching_cve_only():
     chunks = [
         _fuji_cve_chunk("834", "CVE-2018-5442", "CWE-121"),
@@ -84,6 +98,16 @@ def test_identifier_lookup_returns_matching_cve_only():
     assert len(results) == 1
     assert results[0].document_id == "1749"
     assert results[0].metadata["retrieval_method"] == "identifier"
+
+
+def test_identifier_lookup_prefers_per_cve_csaf_over_aggregate_csv():
+    cve = "CVE-2021-25668"
+    results = lookup_by_identifiers(
+        [_siemens_cve_chunk(), _csaf_cve_chunk(cve)],
+        f"Explain {cve}",
+    )
+
+    assert [result.source for result in results] == ["cisa_csaf", "CISA_ICS_ADV_Master.csv"]
 
 
 def test_identifier_lookup_returns_both_attack_frameworks_for_technique_id():
@@ -147,6 +171,29 @@ def _as_retrieved(chunk: ChunkDocument, score: float) -> RetrievedChunk:
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_identifier_lookup_matches_icsa_from_csv_sections_headline():
+    chunk = ChunkDocument(
+        document_id="2955",
+        chunk_id="2955::chunk-1",
+        source="CISA_ICS_ADV_Master.csv",
+        title="FactoryTalk View SE",
+        original_text="Advisory: FactoryTalk View SE Identifier: 2955 CVE: CVE-2024-7513",
+        metadata={
+            "kind": "cisa-ics-advisory",
+            "sections": {
+                "advisory_id": "2955",
+                "headline": "ICSA-24-226-06",
+                "cves": "CVE-2024-7513",
+            },
+        },
+    )
+
+    results = lookup_by_identifiers([chunk], "ICSA-24-226-06 FactoryTalk advisory")
+
+    assert len(results) == 1
+    assert results[0].document_id == "2955"
 
 
 def test_cve_lookup_uses_identifier_path_on_real_cisa_data():
