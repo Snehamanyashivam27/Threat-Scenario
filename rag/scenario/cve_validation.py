@@ -1269,6 +1269,7 @@ def parse_primary_advisory_record(text: str) -> AdvisoryRecord | None:
     )
     cve_id = cves[0] if len(cves) == 1 else ""
     product_evidence = parse_product_evidence_blocks(text, default_cve=cve_id)
+    product_evidence = _evidence_for_record(product_evidence, advisory_id=advisory_id, cve_id=cve_id)
     if not product_evidence:
         product_evidence = synthesize_evidence_from_fields(
             cve_id=cve_id,
@@ -1367,10 +1368,14 @@ def _records_from_block(block: str) -> list[AdvisoryRecord]:
                 privileges_required=record.privileges_required,
                 user_interaction=record.user_interaction,
                 physical_access=record.physical_access,
-                product_evidence=[
-                    ProductEvidence.from_dict({**item.to_dict(), "cve_id": cve_id})
-                    for item in record.product_evidence
-                ],
+                product_evidence=_evidence_for_record(
+                    [
+                        ProductEvidence.from_dict({**item.to_dict(), "cve_id": cve_id})
+                        for item in record.product_evidence
+                    ],
+                    advisory_id=record.advisory_id,
+                    cve_id=cve_id,
+                ),
             )
         )
     return expanded
@@ -1390,21 +1395,26 @@ def _union_advisory_records(
         else (current, incoming)
     )
     canonical_primary = primary.source_type == "cisa_csaf"
+    same_advisory = (primary.advisory_id or "").upper() == (secondary.advisory_id or "").upper()
+    named_conflict = bool(primary.advisory_id and secondary.advisory_id) and not same_advisory
     return AdvisoryRecord(
         advisory_id=primary.advisory_id or secondary.advisory_id,
         vendor=primary.vendor or secondary.vendor,
-        product=primary.product or secondary.product,
-        affected_products=primary.affected_products or secondary.affected_products,
+        product=primary.product or ("" if named_conflict else secondary.product),
+        affected_products=primary.affected_products or ("" if named_conflict else secondary.affected_products),
         cves=list(primary.cves),
         cwes=primary.cwes if canonical_primary or primary.cwes else secondary.cwes,
         raw_text=primary.raw_text,
         source_type=primary.source_type,
-        part_number=primary.part_number or secondary.part_number,
-        model=primary.model or secondary.model,
-        product_family=primary.product_family or secondary.product_family,
-        affected_versions=list(primary.affected_versions or secondary.affected_versions),
+        part_number=primary.part_number or ("" if named_conflict else secondary.part_number),
+        model=primary.model or ("" if named_conflict else secondary.model),
+        product_family=primary.product_family or ("" if named_conflict else secondary.product_family),
+        affected_versions=list(
+            primary.affected_versions or ([] if named_conflict else secondary.affected_versions)
+        ),
         affected_product_constraints=list(
-            primary.affected_product_constraints or secondary.affected_product_constraints
+            primary.affected_product_constraints
+            or ([] if named_conflict else secondary.affected_product_constraints)
         ),
         description=primary.description if canonical_primary else (primary.description or secondary.description),
         effects=list(primary.effects) if canonical_primary else list(primary.effects or secondary.effects),
@@ -1417,7 +1427,11 @@ def _union_advisory_records(
         privileges_required=primary.privileges_required or secondary.privileges_required,
         user_interaction=primary.user_interaction or secondary.user_interaction,
         physical_access=primary.physical_access if primary.physical_access is not None else secondary.physical_access,
-        product_evidence=merge_product_evidence(current.product_evidence, incoming.product_evidence),
+        product_evidence=(
+            merge_product_evidence(current.product_evidence, incoming.product_evidence)
+            if not named_conflict
+            else list(primary.product_evidence)
+        ),
     )
 
 
@@ -1450,6 +1464,7 @@ def _split_candidate_blocks(text: str) -> list[str]:
         )
         if trail and trail.start() > 0:
             cleaned = cleaned[:trail.start()].rstrip()
+        cleaned = _truncate_foreign_advisory_tail(cleaned)
         if not cleaned or not re.search(r"\bCVE:\s*CVE-\d{4}-\d+\b", cleaned, flags=re.IGNORECASE):
             return
         key = cleaned[:160]
@@ -1472,6 +1487,39 @@ def _split_candidate_blocks(text: str) -> list[str]:
     if blocks:
         return blocks
     return [text.strip()]
+
+
+def _truncate_foreign_advisory_tail(block: str) -> str:
+    """Keep one CVE record. A later Advisory: header belongs to the next document.
+
+    CSV rows start with Advisory: rather than CVE:. When concatenated after a
+    CSAF detail dump, split-on-CVE leaves that header attached to the previous
+    CVE, leaking product names and version ranges.
+    """
+    if not re.search(r"(?i)^\s*CVE:\s*CVE-\d{4}-\d+", block):
+        return block
+    matches = list(re.finditer(r"(?i)(?:^|\s)Advisory:\s+", block))
+    if len(matches) < 2:
+        return block
+    return block[: matches[1].start()].rstrip()
+
+
+def _evidence_for_record(
+    items: list[ProductEvidence],
+    *,
+    advisory_id: str,
+    cve_id: str,
+) -> list[ProductEvidence]:
+    """Drop product evidence that is already bound to a different CVE."""
+    del advisory_id
+    cve = (cve_id or "").strip().upper()
+    kept: list[ProductEvidence] = []
+    for item in items:
+        item_cve = (item.cve_id or "").strip().upper()
+        if cve and item_cve and item_cve != cve:
+            continue
+        kept.append(item)
+    return kept
 
 
 def _looks_like_csaf_detail(text: str, fields: dict[str, str]) -> bool:
@@ -1869,12 +1917,28 @@ def _matching_version_constraints(
 ) -> list[str]:
     if component and record.affected_product_constraints:
         matches: list[str] = []
+        versioned = False
         for product, version, part_number in record.affected_product_constraints:
+            if version:
+                versioned = True
             matched, _, _ = _entry_matches_component(product, part_number, component)
             if matched and version:
                 matches.append(version)
         if matches:
             return list(dict.fromkeys(matches))
+        if versioned:
+            return []
+    if component and record.product_evidence:
+        evidence_versions = [
+            item.version_constraint
+            for item in record.product_evidence
+            if item.version_constraint
+            and _entry_matches_component(item.product_name, item.part_number, component)[0]
+        ]
+        if evidence_versions:
+            return list(dict.fromkeys(evidence_versions))
+        if any(item.version_constraint for item in record.product_evidence):
+            return []
     return list(record.affected_versions)
 
 

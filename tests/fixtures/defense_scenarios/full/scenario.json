@@ -1,0 +1,56 @@
+{
+  "scenario_id": "TS-DEF-FULL-001",
+  "title": "Defense context full fixture",
+  "attack_path": [
+    {
+      "sequence": 1,
+      "step_id": "step-prose-only",
+      "name": "Initial Access",
+      "description": "The attacker uses T9990 against the maintenance laptop.",
+      "tactic": "initial-access",
+      "target_component_id": "cmp-1"
+    },
+    {
+      "sequence": 2,
+      "step_id": "step-external-id",
+      "name": "Compromise of the Control Component",
+      "description": "The attacker attempts to compromise the RTU.",
+      "technique_id": "T9990",
+      "target_component_id": "cmp-1"
+    },
+    {
+      "sequence": 3,
+      "step_id": "step-stix-id",
+      "name": "Lateral Movement",
+      "description": "The RTU becomes reachable.",
+      "attack_pattern_id": "attack-pattern--aaaa0001-0001-0001-0001-000000000001",
+      "target_component_id": "cmp-1"
+    },
+    {
+      "sequence": 4,
+      "step_id": "step-multiple-ids",
+      "name": "Access to the Network Component",
+      "description": "The attacker reaches the switch.",
+      "technique_ids": ["T9991", "T9990"],
+      "target_component_id": "cmp-1"
+    },
+    {
+      "sequence": 5,
+      "step_id": "step-duplicate-ids",
+      "name": "Bypass",
+      "description": "Network controls are modified.",
+      "technique_id": "T9990",
+      "attack_id": "T9990",
+      "attack_ids": ["T9990", "t9990"],
+      "target_component_id": "cmp-1"
+    },
+    {
+      "sequence": 6,
+      "step_id": "step-missing-id",
+      "name": "Impact",
+      "description": "Operational function is impaired.",
+      "tactic": "inhibit-response-function",
+      "target_component_id": "cmp-1"
+    }
+  ]
+}

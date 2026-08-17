@@ -1,0 +1,103 @@
+{
+  "document": {
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "title": "Remediation Inventory Fixture",
+    "tracking": {
+      "id": "ICSA-30-001-01",
+      "current_release_date": "2030-01-01T00:00:00.000000Z",
+      "initial_release_date": "2030-01-01T00:00:00.000000Z",
+      "status": "final",
+      "version": "1"
+    },
+    "publisher": {
+      "category": "coordinator",
+      "name": "Example Coordinator",
+      "namespace": "https://example.invalid/"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "category": "vendor",
+        "name": "Acme Controls",
+        "branches": [
+          {
+            "category": "product_name",
+            "name": "FlowMaster X100",
+            "product": {
+              "name": "FlowMaster X100",
+              "product_id": "CSAFPID-0001"
+            }
+          },
+          {
+            "category": "product_name",
+            "name": "FlowMaster X200",
+            "product": {
+              "name": "FlowMaster X200",
+              "product_id": "CSAFPID-0002"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2030-80001",
+      "title": "CVE-2030-80001",
+      "product_status": {
+        "known_affected": ["CSAFPID-0001"],
+        "fixed": ["CSAFPID-0002"]
+      },
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "Update to V2.0.",
+          "product_ids": ["CSAFPID-0001"],
+          "url": "https://example.invalid/update"
+        },
+        {
+          "category": "vendor_fix",
+          "details": "Update to V2.0.",
+          "product_ids": ["CSAFPID-0001"],
+          "url": "https://example.invalid/update"
+        },
+        {
+          "category": "mitigation",
+          "details": "Restrict management-plane access to authorized operators.",
+          "product_ids": ["CSAFPID-0001"]
+        },
+        {
+          "category": "workaround",
+          "details": "Disable unused services until the update is applied.",
+          "product_ids": ["CSAFPID-0001"]
+        },
+        "not-an-object",
+        null,
+        {}
+      ]
+    },
+    {
+      "cve": "CVE-2030-80002",
+      "title": "CVE-2030-80002",
+      "product_status": {
+        "known_affected": ["CSAFPID-0001"]
+      }
+    },
+    {
+      "cve": "CVE-2030-80003",
+      "title": "CVE-2030-80003",
+      "product_status": {
+        "known_affected": ["CSAFPID-0001"]
+      },
+      "remediations": [
+        {
+          "category": "none_available",
+          "details": "Currently no fix is available",
+          "product_ids": ["CSAFPID-0001"]
+        }
+      ]
+    }
+  ]
+}

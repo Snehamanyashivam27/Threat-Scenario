@@ -1,0 +1,54 @@
+{
+  "document": {
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "title": "Remediation Inventory Alternate Source",
+    "tracking": {
+      "id": "ICSA-30-001-02",
+      "current_release_date": "2030-01-02T00:00:00.000000Z",
+      "initial_release_date": "2030-01-02T00:00:00.000000Z",
+      "status": "final",
+      "version": "1"
+    },
+    "publisher": {
+      "category": "coordinator",
+      "name": "Example Coordinator",
+      "namespace": "https://example.invalid/"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "category": "vendor",
+        "name": "Acme Controls",
+        "branches": [
+          {
+            "category": "product_name",
+            "name": "FlowMaster X100",
+            "product": {
+              "name": "FlowMaster X100",
+              "product_id": "CSAFPID-0001"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2030-80001",
+      "title": "CVE-2030-80001",
+      "product_status": {
+        "known_affected": ["CSAFPID-0001"]
+      },
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "Apply vendor package 2.0.1.",
+          "product_ids": ["CSAFPID-0001"],
+          "url": "https://example.invalid/alt-update"
+        }
+      ]
+    }
+  ]
+}

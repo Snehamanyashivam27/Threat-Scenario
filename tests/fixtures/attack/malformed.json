@@ -1,0 +1,16 @@
+{
+  "type": "bundle",
+  "objects": [
+    "skip-me",
+    12,
+    null,
+    {
+      "type": "relationship",
+      "relationship_type": "mitigates"
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--malformed"
+    }
+  ]
+}

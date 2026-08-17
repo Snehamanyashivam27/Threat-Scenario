@@ -48,6 +48,24 @@ CSAF_EXPANSION_CAP = 12
 _IDENTITY_WEIGHTS = {"vendor": 1, "product": 3, "model": 4, "part": 5}
 
 
+def _hit_is_canonical_cve_document(hit, cve_id: str) -> bool:
+    """Bind CSAF expansion to the queried CVE's own document, not a mention in another advisory."""
+    wanted = (cve_id or "").upper()
+    if not wanted.startswith("CVE-"):
+        return False
+    metadata = getattr(hit, "metadata", None) or {}
+    meta_cve = str(metadata.get("cve_id") or metadata.get("meta_cve_id") or "").upper()
+    if meta_cve:
+        return meta_cve == wanted
+    sections = metadata.get("sections") or {}
+    if isinstance(sections, dict):
+        section_cve = str(sections.get("cve_id") or "").upper()
+        if section_cve:
+            return section_cve == wanted
+    document_id = str(getattr(hit, "document_id", "") or "").upper()
+    return f"::{wanted}" in document_id or document_id.endswith(wanted)
+
+
 class DiscoveryHarvest(NamedTuple):
     ids: list[str]
     ranks: dict[str, int]
@@ -704,7 +722,7 @@ class ScenarioNarrativeGenerator:
                 kind = str(hit.metadata.get("kind") or hit.metadata.get("meta_kind") or "")
                 if kind != "cisa-csaf-cve" and hit.source != "cisa_csaf":
                     continue
-                if cve_id.upper() not in hit.text.upper():
+                if not _hit_is_canonical_cve_document(hit, cve_id):
                     continue
                 if hit.document_id in seen_docs:
                     continue

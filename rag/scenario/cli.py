@@ -43,6 +43,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print structured per-step retrieval and applicability evidence after the narrative",
     )
+    parser.add_argument(
+        "--show-defenses",
+        action="store_true",
+        help="Print evidence-backed defense recommendations after the narrative",
+    )
     return parser.parse_args()
 
 
@@ -81,6 +86,21 @@ def main() -> None:
         print(format_evidence_trace(result.evidence))
         print("Evidence JSON:")
         print(json.dumps([item.to_dict() for item in result.evidence], indent=2, default=str))
+    if args.show_defenses:
+        from rag.defense.report_pipeline import (
+            build_defense_recommendation_text,
+            default_attack_sources,
+            default_csaf_dir,
+        )
+
+        print(
+            build_defense_recommendation_text(
+                result,
+                scenario_dir=args.scenario,
+                csaf_dir=default_csaf_dir(args.root),
+                attack_sources=default_attack_sources(args.root),
+            )
+        )
 
 
 if __name__ == "__main__":

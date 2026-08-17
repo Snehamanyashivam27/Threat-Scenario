@@ -1,0 +1,42 @@
+{
+  "type": "bundle",
+  "id": "bundle--defense-stage3-ics",
+  "objects": [
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--eeee0001-0001-0001-0001-000000000001",
+      "name": "ICS Fixture Technique Alpha",
+      "description": "ICS bundle copy of T9990 with distinct STIX identity.",
+      "x_mitre_domains": ["ics-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9990",
+          "url": "https://attack.mitre.org/techniques/T9990"
+        }
+      ]
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--ffff0001-0001-0001-0001-000000000001",
+      "name": "ICS Network Segmentation",
+      "description": "Segment ICS networks to limit lateral movement.",
+      "x_mitre_domains": ["ics-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "M8881",
+          "url": "https://attack.mitre.org/mitigations/M8881"
+        }
+      ]
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--ffff0001-0001-0001-0001-000000000002",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--ffff0001-0001-0001-0001-000000000001",
+      "target_ref": "attack-pattern--eeee0001-0001-0001-0001-000000000001",
+      "description": "ICS-specific mitigation for the same external technique ID."
+    }
+  ]
+}

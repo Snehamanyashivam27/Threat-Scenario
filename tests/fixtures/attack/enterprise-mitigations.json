@@ -1,0 +1,243 @@
+{
+  "type": "bundle",
+  "id": "bundle--defense-stage3-enterprise",
+  "objects": [
+    "not-an-object",
+    null,
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--aaaa0001-0001-0001-0001-000000000001",
+      "name": "Fixture Technique Alpha",
+      "description": "Enterprise fixture technique with two mitigations.",
+      "x_mitre_domains": ["enterprise-attack"],
+      "revoked": false,
+      "x_mitre_deprecated": false,
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9990",
+          "url": "https://attack.mitre.org/techniques/T9990"
+        }
+      ]
+    },
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--aaaa0001-0001-0001-0001-000000000002",
+      "name": "Fixture Technique Beta",
+      "description": "Shares one mitigation with Alpha.",
+      "x_mitre_domains": ["enterprise-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9991",
+          "url": "https://attack.mitre.org/techniques/T9991"
+        }
+      ]
+    },
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--aaaa0001-0001-0001-0001-000000000003",
+      "name": "Unrelated Technique",
+      "x_mitre_domains": ["enterprise-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9992"
+        }
+      ]
+    },
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--aaaa0001-0001-0001-0001-000000000004",
+      "name": "Revoked Technique",
+      "x_mitre_domains": ["enterprise-attack"],
+      "revoked": true,
+      "x_mitre_deprecated": false,
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9993"
+        }
+      ]
+    },
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--aaaa0001-0001-0001-0001-000000000006",
+      "name": "Deprecated Technique",
+      "x_mitre_domains": ["enterprise-attack"],
+      "revoked": false,
+      "x_mitre_deprecated": true,
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9996"
+        }
+      ]
+    },
+    {
+      "type": "attack-pattern",
+      "id": "attack-pattern--aaaa0001-0001-0001-0001-000000000005",
+      "name": "Sparse Technique",
+      "x_mitre_domains": ["enterprise-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "T9995"
+        }
+      ]
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--bbbb0001-0001-0001-0001-000000000001",
+      "name": "Network Isolation",
+      "description": "Isolate the affected host from untrusted networks.\nKeep this paragraph intact.",
+      "x_mitre_domains": ["enterprise-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "M9991",
+          "url": "https://attack.mitre.org/mitigations/M9991"
+        }
+      ]
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--bbbb0001-0001-0001-0001-000000000002",
+      "name": "Access Restriction",
+      "description": "Restrict administrative access to authorized operators.",
+      "x_mitre_domains": ["enterprise-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "M9992",
+          "url": "https://attack.mitre.org/mitigations/M9992"
+        }
+      ]
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--bbbb0001-0001-0001-0001-000000000003",
+      "name": "Unrelated Mitigation",
+      "description": "This course-of-action is not linked to T9990.",
+      "x_mitre_domains": ["enterprise-attack"],
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "M9993"
+        }
+      ]
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--bbbb0001-0001-0001-0001-000000000004",
+      "name": "Deprecated Hardening",
+      "description": "Deprecated mitigation must not appear as positive evidence.",
+      "x_mitre_domains": ["enterprise-attack"],
+      "x_mitre_deprecated": true,
+      "external_references": [
+        {
+          "source_name": "mitre-attack",
+          "external_id": "M9994"
+        }
+      ]
+    },
+    {
+      "type": "course-of-action",
+      "id": "course-of-action--bbbb0001-0001-0001-0001-000000000005",
+      "name": "Sparse Mitigation",
+      "x_mitre_domains": ["enterprise-attack"]
+    },
+    {
+      "type": "malware",
+      "id": "malware--cccc0001-0001-0001-0001-000000000001",
+      "name": "Fixture Malware"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000001",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000001",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001",
+      "description": "Network isolation reduces exposure of Fixture Technique Alpha.",
+      "revoked": false,
+      "x_mitre_deprecated": false
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000011",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000001",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001",
+      "description": "Duplicate edge for the same mitigation and technique."
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000002",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000002",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001",
+      "description": "Access restriction is a second mitigation for Alpha."
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000003",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000001",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000002",
+      "description": "The same mitigation also applies to Beta."
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000004",
+      "relationship_type": "uses",
+      "source_ref": "malware--cccc0001-0001-0001-0001-000000000001",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000005",
+      "relationship_type": "mitigates",
+      "source_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001",
+      "target_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000001",
+      "description": "Reversed direction must be rejected."
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000006",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000004",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000007",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000001",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000004"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000008",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000002",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000006"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000009",
+      "relationship_type": "mitigates",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000005",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000005"
+    },
+    {
+      "type": "relationship",
+      "id": "relationship--dddd0001-0001-0001-0001-000000000010",
+      "relationship_type": "related-to",
+      "source_ref": "course-of-action--bbbb0001-0001-0001-0001-000000000003",
+      "target_ref": "attack-pattern--aaaa0001-0001-0001-0001-000000000001"
+    },
+    {
+      "type": "relationship"
+    }
+  ]
+}
