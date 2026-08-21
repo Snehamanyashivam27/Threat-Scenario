@@ -18,6 +18,9 @@ from rag.defense.models import (
     UnifiedStepDefenseEvidence,
     ValidatedRemediation,
 )
+from rag.defense.product_binding import ACTIONABLE as TEXT_ACTIONABLE
+from rag.defense.product_binding import INFORMATIONAL as TEXT_INFORMATIONAL
+from rag.defense.product_binding import classify_actionability, normalize_details
 from rag.scenario.evidence import TruthValue
 from rag.utils.text import stable_hash
 
@@ -118,6 +121,20 @@ def _csaf_candidate(
     else:
         policy = _SUPPORT_TO_POLICY.get(remediation.support_state, RecommendationPolicyState.SUPPRESSED)
         reason = _csaf_reason(policy, remediation.support_state, category)
+        if policy in ACTIONABLE_STATES:
+            actionability = classify_actionability(
+                details=remediation.details,
+                category=category,
+                scope=remediation.scope,
+                product_ids=list(remediation.product_ids),
+                deployment=remediation.deployment_context,
+            )
+            if actionability == TEXT_INFORMATIONAL:
+                policy = RecommendationPolicyState.INFORMATIONAL
+                reason = f"csaf {category} is informational"
+            elif actionability != TEXT_ACTIONABLE:
+                policy = RecommendationPolicyState.SUPPRESSED
+                reason = f"csaf {category} is {DefenseSupportState.INSUFFICIENT_EVIDENCE.value}"
     conditions = _conditions_from_checks(remediation) if policy == RecommendationPolicyState.CONDITIONAL else []
     recommendation_id = _recommendation_id(
         SOURCE_CSAF,
@@ -146,6 +163,7 @@ def _csaf_candidate(
         policy_reason=reason,
         provenance=remediation.provenance,
         urls=list(remediation.urls),
+        scope=remediation.scope,
     )
 
 
@@ -243,14 +261,30 @@ def _recommendation_id(
 
 
 def _dedupe_candidates(candidates: list[RecommendationCandidate]) -> list[RecommendationCandidate]:
-    seen: set[str] = set()
+    seen: set[tuple] = set()
     unique: list[RecommendationCandidate] = []
     for item in candidates:
-        if item.recommendation_id in seen:
+        key = _equivalence_key(item)
+        if key in seen:
             continue
-        seen.add(item.recommendation_id)
+        seen.add(key)
         unique.append(item)
     return unique
+
+
+def _equivalence_key(item: RecommendationCandidate) -> tuple:
+    if item.policy_state not in ACTIONABLE_STATES and item.policy_state is not RecommendationPolicyState.INFORMATIONAL:
+        return ("id", item.recommendation_id)
+    return (
+        "equiv",
+        item.source_type,
+        item.advisory_id,
+        item.cve_id,
+        item.category,
+        normalize_details(item.content),
+        item.scope,
+        item.policy_state.value,
+    )
 
 
 def _sort_key(item: RecommendationCandidate, step_index: int) -> tuple:

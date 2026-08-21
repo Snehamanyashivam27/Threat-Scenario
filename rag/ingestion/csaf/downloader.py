@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 import time
 import urllib.error
@@ -77,7 +78,17 @@ class CsafDownloader:
                     if not payload:
                         last_error = f"Empty response for {url}"
                         break
-                    path.write_bytes(payload)
+                    tmp = path.with_name(path.name + ".tmp")
+                    try:
+                        tmp.write_bytes(payload)
+                        from rag.ingestion.csaf.parser import parse_csaf_file
+
+                        parse_csaf_file(tmp)
+                        os.replace(tmp, path)
+                    except Exception as exc:  # noqa: BLE001 - do not keep invalid CSAF
+                        tmp.unlink(missing_ok=True)
+                        last_error = f"CSAF parse failed for {url}: {exc}"
+                        continue
                     self.logger.info("Downloaded %s -> %s", normalized, path)
                     return DownloadResult(
                         advisory_id=normalized,

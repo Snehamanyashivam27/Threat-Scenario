@@ -1,0 +1,10 @@
+Using existing Chroma index 'rag_chunks_contextual_det32' (6056 chunks). Pass --reindex to rebuild.
+1. TS-OT-CONSTRAINED-001 — Compromise of a SICAM 8 RTU through the maintenance network
+The attacker controls the maintenance laptop or uses compromised credentials. Through the established path, the attacker reaches the RUGGEDCOM RST2428P.
+The attacker attempts to bypass the network-segmentation controls on the RUGGEDCOM RST2428P. The exact vulnerability used for this action could not be confirmed. The scenario assumes that the preceding step succeeds, allowing the SICAM 8 CPCI85 to become accessible.
+The attacker then attempts to compromise the SICAM 8 CPCI85. The exact exploitation mechanism could not be confirmed.
+The attacker may impair an operational control or communication function.
+
+Evidence-backed Defense Recommendations
+---------------------------------------
+No evidence-backed actionable defense recommendation available.

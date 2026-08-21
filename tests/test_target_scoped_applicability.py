@@ -355,7 +355,7 @@ def test_step_abstains_when_no_eligible_cve_remains():
     candidates = _evaluate(text, _switch(), step)
     selection = select_best_step_candidate(step.step_id, candidates, step=step, component=_switch())
     assert selection.selected is None
-    assert selection.reason == "no_eligible_candidate"
+    assert selection.reason == "rejected"
 
 
 def test_controller_step_still_selects_matching_controller_candidate():

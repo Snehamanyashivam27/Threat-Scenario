@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from rag.ingestion.csaf.models import CveDetailRecord, CvePrerequisites
 from rag.scenario.product_evidence import (
@@ -75,17 +75,33 @@ def parse_csaf_document(data: dict[str, Any], source_path: str | None = None) ->
     return records
 
 
-def parse_csaf_directory(directory: str | Path) -> list[CveDetailRecord]:
+def parse_csaf_directory(
+    directory: str | Path,
+    on_progress: Callable[[int, int], None] | None = None,
+) -> list[CveDetailRecord]:
     root = Path(directory)
     if not root.exists():
         return []
+    paths = sorted(root.glob("*.json"))
+    total = len(paths)
+    if on_progress is not None:
+        on_progress(0, total)
     records: list[CveDetailRecord] = []
-    for path in sorted(root.glob("*.json")):
+    for index, path in enumerate(paths, start=1):
         try:
             records.extend(parse_csaf_file(path))
         except CsafParseError:
             continue
+        if on_progress is not None:
+            on_progress(index, total)
     return records
+
+
+def index_product_tree(product_tree: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    """Resolve CSAF product_ids to source-stated catalog/model/part/version identity."""
+    if not isinstance(product_tree, dict):
+        return {}
+    return _index_products(product_tree)
 
 
 def _advisory_id(document: dict[str, Any]) -> str:

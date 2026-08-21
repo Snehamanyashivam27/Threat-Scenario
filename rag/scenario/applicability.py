@@ -15,8 +15,21 @@ class FinalStatus(str, Enum):
     REJECTED_VERSION_MISMATCH = "rejected_version_mismatch"
     REJECTED_PREREQUISITE_MISMATCH = "rejected_prerequisite_mismatch"
     REJECTED_EFFECT_MISMATCH = "rejected_effect_mismatch"
+    REJECTED_DIMENSION_MISMATCH = "rejected_dimension_mismatch"
+    CONDITIONAL_DIMENSION_UNKNOWN = "conditional_dimension_unknown"
     CONFLICTING_EVIDENCE = "conflicting_evidence"
     INSUFFICIENT_CONTEXT = "insufficient_context"
+
+
+APPLICABILITY_DIMENSIONS = (
+    "serial_number",
+    "firmware_version",
+    "software_version",
+    "hardware_version",
+    "product_revision",
+    "configuration",
+)
+FIRMWARE_GATE_NAMES = frozenset({"version", "firmware_version"})
 
 
 class StepObjective(str, Enum):
@@ -373,12 +386,27 @@ def compute_final_status(
     product = _check_status(checks, "product")
     if product == TruthValue.FALSE:
         return FinalStatus.REJECTED_PRODUCT_MISMATCH
-    if product == TruthValue.UNKNOWN:
-        return FinalStatus.INSUFFICIENT_CONTEXT
 
-    version = _check_status(checks, "version")
-    if version == TruthValue.FALSE:
-        return FinalStatus.REJECTED_VERSION_MISMATCH
+    dimension_names = (
+        "serial_number",
+        "firmware_version",
+        "software_version",
+        "hardware_version",
+        "product_revision",
+        "configuration",
+        "version",
+    )
+    unknown_dimensions: list[str] = []
+    for name in dimension_names:
+        status = _check_status(checks, name)
+        if status is None or status == TruthValue.NOT_APPLICABLE:
+            continue
+        if status == TruthValue.FALSE:
+            if name in FIRMWARE_GATE_NAMES or name == "software_version":
+                return FinalStatus.REJECTED_VERSION_MISMATCH
+            return FinalStatus.REJECTED_DIMENSION_MISMATCH
+        if status == TruthValue.UNKNOWN:
+            unknown_dimensions.append(name)
 
     effect = _check_status(checks, "technical_effect")
     if effect == TruthValue.FALSE:
@@ -389,16 +417,22 @@ def compute_final_status(
         if status == TruthValue.FALSE:
             return FinalStatus.REJECTED_PREREQUISITE_MISMATCH
 
-    if version == TruthValue.UNKNOWN:
+    # UNKNOWN product/effect stay visible as insufficient. They must not hide a
+    # prior FALSE, and they must not be rewritten as rejected.
+    if product == TruthValue.UNKNOWN:
+        return FinalStatus.INSUFFICIENT_CONTEXT
+    if effect == TruthValue.UNKNOWN:
+        return FinalStatus.INSUFFICIENT_CONTEXT
+
+    if any(name in FIRMWARE_GATE_NAMES for name in unknown_dimensions):
         return FinalStatus.CONDITIONAL_VERSION_UNKNOWN
+    if unknown_dimensions:
+        return FinalStatus.CONDITIONAL_DIMENSION_UNKNOWN
 
     for name in PREREQUISITE_GATE_NAMES:
         status = _check_status(checks, name)
         if status == TruthValue.UNKNOWN:
             return FinalStatus.CONDITIONAL_PREREQUISITE_UNKNOWN
-
-    if effect == TruthValue.UNKNOWN:
-        return FinalStatus.CONDITIONAL_PREREQUISITE_UNKNOWN
 
     return FinalStatus.VERIFIED_APPLICABLE
 
@@ -408,6 +442,8 @@ def disposition_from_final_status(final_status: FinalStatus) -> str:
         return "applicable"
     if final_status.value.startswith("conditional_"):
         return "conditional"
+    if final_status == FinalStatus.INSUFFICIENT_CONTEXT:
+        return "insufficient"
     return "rejected"
 
 
@@ -418,6 +454,10 @@ def compute_rank_score(checks: list[ApplicabilityCheck], unresolved_count: int) 
         "part_number": 120,
         "model": 80,
         "version": 250,
+        "serial_number": 250,
+        "firmware_version": 250,
+        "software_version": 250,
+        "hardware_version": 80,
         "technical_effect": 300,
         "service": 40,
         "authentication": 40,
@@ -438,6 +478,10 @@ def compute_rank_score(checks: list[ApplicabilityCheck], unresolved_count: int) 
 GATE_LABELS = {
     "product": "Product",
     "version": "Version",
+    "serial_number": "Serial",
+    "firmware_version": "Firmware",
+    "software_version": "Software",
+    "hardware_version": "Hardware",
     "network_position": "Network pos.",
     "authentication": "Authentication",
     "privileges": "Privileges",

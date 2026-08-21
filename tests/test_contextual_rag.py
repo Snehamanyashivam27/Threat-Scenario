@@ -193,6 +193,18 @@ def test_context_cache_reuse(tmp_path):
     assert cache_path.exists()
 
 
+def test_context_cache_flush_can_be_deferred(tmp_path):
+    cache_path = tmp_path / "contexts.json"
+    cache = ContextCache(cache_path)
+    generator = DeterministicContextGenerator(cache=cache)
+    chunk = _enterprise_chunk()
+
+    generator.enrich_chunk(chunk, persist=False)
+    assert not cache_path.exists()
+    cache.flush()
+    assert cache_path.exists()
+
+
 def test_context_not_generated_at_retrieval():
     retrieval_modules = [
         ROOT / "rag" / "retrieval" / "vector_retriever.py",

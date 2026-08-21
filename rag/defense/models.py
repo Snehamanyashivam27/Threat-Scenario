@@ -16,6 +16,7 @@ class RemediationAction:
     urls: list[str] = field(default_factory=list)
     product_ids: list[str] = field(default_factory=list)
     group_ids: list[str] = field(default_factory=list)
+    scope: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -24,15 +25,17 @@ class RemediationAction:
             "urls": list(self.urls),
             "product_ids": list(self.product_ids),
             "group_ids": list(self.group_ids),
+            "scope": self.scope,
         }
 
-    def dedupe_key(self) -> tuple[str, str, tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    def dedupe_key(self) -> tuple[str, str, tuple[str, ...], tuple[str, ...], tuple[str, ...], str]:
         return (
             self.category,
             self.details,
             tuple(self.urls),
             tuple(self.product_ids),
             tuple(self.group_ids),
+            self.scope,
         )
 
 
@@ -44,6 +47,8 @@ class CveRemediationRecord:
     provenance: str
     remediations: list[RemediationAction] = field(default_factory=list)
     fixed_product_ids: list[str] = field(default_factory=list)
+    source_type: str = "cisa_csaf"
+    product_index: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -53,6 +58,7 @@ class CveRemediationRecord:
             "provenance": self.provenance,
             "remediations": [item.to_dict() for item in self.remediations],
             "fixed_product_ids": list(self.fixed_product_ids),
+            "source_type": self.source_type,
         }
 
     def has_remediation_evidence(self) -> bool:
@@ -119,6 +125,8 @@ class ValidatedRemediation:
     fixed_product_ids: list[str] = field(default_factory=list)
     support_state: DefenseSupportState = DefenseSupportState.INSUFFICIENT_EVIDENCE
     checks: list[DefenseApplicabilityCheck] = field(default_factory=list)
+    scope: str = ""
+    deployment_context: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -134,6 +142,8 @@ class ValidatedRemediation:
             "fixed_product_ids": list(self.fixed_product_ids),
             "support_state": self.support_state.value,
             "checks": [item.to_dict() for item in self.checks],
+            "scope": self.scope,
+            "deployment_context": self.deployment_context,
         }
 
 
@@ -336,6 +346,7 @@ class RecommendationCandidate:
     policy_reason: str = ""
     provenance: str = ""
     urls: list[str] = field(default_factory=list)
+    scope: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -358,6 +369,7 @@ class RecommendationCandidate:
             "policy_reason": self.policy_reason,
             "provenance": self.provenance,
             "urls": list(self.urls),
+            "scope": self.scope,
         }
 
 
@@ -445,3 +457,86 @@ class DefenseRecommendationReport:
             "steps": [item.to_dict() for item in self.steps],
             "informational": [item.to_dict() for item in self.informational],
         }
+
+
+@dataclass(frozen=True, slots=True)
+class D3FendControlSpec:
+    tactic: str
+    technique_id: str
+    technique_name: str
+    summary: str
+
+
+@dataclass(slots=True)
+class D3FendControlCandidate:
+    step_id: str
+    sequence: int
+    spec: D3FendControlSpec
+    source_type: str
+    citation: str
+    conditional: bool = False
+    provenance: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "sequence": self.sequence,
+            "tactic": self.spec.tactic,
+            "technique_id": self.spec.technique_id,
+            "technique_name": self.spec.technique_name,
+            "summary": self.spec.summary,
+            "source_type": self.source_type,
+            "citation": self.citation,
+            "conditional": self.conditional,
+            "provenance": self.provenance,
+        }
+
+
+@dataclass(slots=True)
+class RenderedD3FendControl:
+    step_id: str
+    sequence: int
+    tactic: str
+    technique_id: str
+    technique_name: str
+    rendered_text: str
+    citation: str
+    source_type: str
+    conditional: bool = False
+    provenance: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "sequence": self.sequence,
+            "tactic": self.tactic,
+            "technique_id": self.technique_id,
+            "technique_name": self.technique_name,
+            "rendered_text": self.rendered_text,
+            "citation": self.citation,
+            "source_type": self.source_type,
+            "conditional": self.conditional,
+            "provenance": self.provenance,
+        }
+
+
+@dataclass(slots=True)
+class RenderedStepD3FendControls:
+    step_id: str
+    sequence: int
+    controls: list[RenderedD3FendControl] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "sequence": self.sequence,
+            "controls": [item.to_dict() for item in self.controls],
+        }
+
+
+@dataclass(slots=True)
+class D3FendControlReport:
+    steps: list[RenderedStepD3FendControls] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"steps": [item.to_dict() for item in self.steps]}

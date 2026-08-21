@@ -40,6 +40,8 @@ class CveDetailRecord:
     raw_product_ids: list[str] = field(default_factory=list)
     product_evidence: list[dict[str, Any]] = field(default_factory=list)
     extra: dict[str, Any] = field(default_factory=dict)
+    field_provenance: dict[str, str] = field(default_factory=dict)
+    cpe_matches: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def canonical_key(self) -> str:
@@ -75,4 +77,46 @@ class CveDetailRecord:
             "references": list(self.references),
             "raw_product_ids": list(self.raw_product_ids),
             "product_evidence": list(self.product_evidence),
+            "field_provenance": dict(self.field_provenance),
+            "cpe_matches": list(self.cpe_matches),
         }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> CveDetailRecord:
+        payload = data or {}
+        prereq = payload.get("prerequisites") or {}
+        if not isinstance(prereq, dict):
+            prereq = {}
+        return cls(
+            document_type=str(payload.get("document_type") or "cve_detail"),
+            source_type=str(payload.get("source_type") or "cisa_csaf"),
+            advisory_id=str(payload.get("advisory_id") or ""),
+            cve_id=str(payload.get("cve_id") or ""),
+            vendor=payload.get("vendor"),
+            product=payload.get("product"),
+            product_family=payload.get("product_family"),
+            model=payload.get("model"),
+            part_number=payload.get("part_number"),
+            affected_versions=list(payload.get("affected_versions") or []),
+            affected_products=list(payload.get("affected_products") or []),
+            affected_product_constraints=list(payload.get("affected_product_constraints") or []),
+            cwe_ids=list(payload.get("cwe_ids") or []),
+            cvss_score=payload.get("cvss_score"),
+            severity=payload.get("severity"),
+            title=payload.get("title"),
+            description=payload.get("description"),
+            prerequisites=CvePrerequisites(
+                network_access=prereq.get("network_access"),
+                authentication_required=prereq.get("authentication_required"),
+                privileges_required=prereq.get("privileges_required"),
+                user_interaction=prereq.get("user_interaction"),
+                physical_access=prereq.get("physical_access"),
+            ),
+            effects=list(payload.get("effects") or []),
+            references=list(payload.get("references") or []),
+            raw_product_ids=list(payload.get("raw_product_ids") or []),
+            product_evidence=list(payload.get("product_evidence") or []),
+            extra=dict(payload.get("extra") or {}),
+            field_provenance=dict(payload.get("field_provenance") or {}),
+            cpe_matches=list(payload.get("cpe_matches") or []),
+        )

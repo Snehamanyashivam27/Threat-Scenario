@@ -9,6 +9,7 @@ from pathlib import Path
 
 from rag.defense.csaf_remediation import lookup_csaf_remediations
 from rag.defense.models import StepRemediationInventory
+from rag.ingestion.cisa_advisory.remediation import lookup_advisory_remediations
 from rag.scenario.evidence import CandidateEvidence, StepEvidence
 from rag.scenario.models import ScenarioNarrativeResult
 
@@ -16,16 +17,19 @@ from rag.scenario.models import ScenarioNarrativeResult
 def inventory_scenario_result(
     result: ScenarioNarrativeResult,
     csaf_dir: str | Path,
+    advisory_dir: str | Path | None = None,
 ) -> list[StepRemediationInventory]:
-    return inventory_step_evidence(result.evidence, csaf_dir)
+    return inventory_step_evidence(result.evidence, csaf_dir, advisory_dir=advisory_dir)
 
 
 def inventory_step_evidence(
     evidence: list[StepEvidence],
     csaf_dir: str | Path,
+    advisory_dir: str | Path | None = None,
 ) -> list[StepRemediationInventory]:
     rows: list[StepRemediationInventory] = []
     directory = Path(csaf_dir)
+    fallback_dir = Path(advisory_dir) if advisory_dir is not None else directory.parent / "cisa_advisory"
     for step in evidence:
         selected = _selected_cve(step)
         if not selected:
@@ -42,12 +46,22 @@ def inventory_step_evidence(
             continue
         advisory_id = _advisory_id_for_cve(step.candidates, selected)
         records = lookup_csaf_remediations(directory, cve_id=selected, advisory_id=advisory_id)
-        if not records:
-            note = "csaf_not_found"
-        elif not any(item.has_remediation_evidence() for item in records):
-            note = "no_csaf_remediation_fields"
-        else:
+        note = ""
+        if any(item.has_remediation_evidence() for item in records):
             note = ""
+        else:
+            fallback = lookup_advisory_remediations(
+                str(fallback_dir),
+                cve_id=selected,
+                advisory_id=advisory_id,
+            )
+            if fallback:
+                records = fallback
+                note = "advisory_detail_fallback"
+            elif not records:
+                note = "csaf_not_found"
+            else:
+                note = "no_csaf_remediation_fields"
         rows.append(
             StepRemediationInventory(
                 step_id=step.step_id,

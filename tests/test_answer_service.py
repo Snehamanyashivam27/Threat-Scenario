@@ -104,6 +104,24 @@ Sector: Critical Manufacturing"""
     assert "not contain enough information" not in answer
 
 
+def test_deterministic_unknown_cve_does_not_crash_or_attribute_wrong_advisory():
+    context = """Supporting Advisories
+Advisory: Siemens Web Server of SCALANCE X200 (Update A)
+Identifier: 1749
+Vendor: Siemens
+Product: Siemens Web Server of SCALANCE X200
+Severity: Critical
+CVE: CVE-2021-25668, CVE-2021-25669
+CWE: CWE-122, CWE-121
+Affected Products: The following Siemens products are affected: SCALANCE X200-4P IRT: All versions prior to 5.5.1
+Sector: Critical Manufacturing"""
+
+    answer = DeterministicAnswerService().generate("CVE-2024-33919", context)
+
+    assert "could not derive a concise answer" in answer
+    assert "CVE-2024-33919 is referenced" not in answer
+
+
 def test_deterministic_product_query_summarizes_advisory_fields():
     context = """Supporting Advisories
 Advisory: Siemens Web Server of SCALANCE X200 (Update A)

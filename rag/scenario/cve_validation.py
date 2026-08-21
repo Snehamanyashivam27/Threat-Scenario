@@ -20,11 +20,14 @@ from dataclasses import dataclass, field
 from rag.models.answer import SourceReference
 from rag.retrieval.document_fields import extract_cves, extract_fields
 from rag.retrieval.identifier_lookup import extract_cwes
+from rag.scenario.affected_product_clauses import evidence_from_affected_product_text
 from rag.scenario.canonical_cve import (
     condition_text_for_constraint,
     isolate_cwes_for_cve,
     parse_constraint_text,
 )
+from rag.scenario.canonical_lookup import lookup_nvd_cve_detail
+from rag.ingestion.coverage import is_sufficient_cve_description
 from rag.scenario.applicability import (
     FinalStatus,
     classify_step_objective,
@@ -196,6 +199,7 @@ class AdvisoryRecord:
     user_interaction: str | None = None
     physical_access: bool | None = None
     product_evidence: list[ProductEvidence] = field(default_factory=list)
+    field_provenance: dict[str, str] = field(default_factory=dict)
 
 
 GENERIC_PRODUCT_TOKENS = frozenset(
@@ -279,6 +283,7 @@ def evaluate_cve_candidates(
     component: ComponentModel | None,
     step: AttackStep,
     bundle: ScenarioBundle | None = None,
+    nvd_store_dir: str | None = None,
 ) -> list[CandidateEvidence]:
     seen_parts: set[str] = set()
     unique_parts: list[str] = []
@@ -304,11 +309,17 @@ def evaluate_cve_candidates(
         cve_id = record.cves[0]
         union_by_cve[cve_id] = _union_advisory_records(union_by_cve.get(cve_id), record)
 
+    for cve_id, record in list(union_by_cve.items()):
+        union_by_cve[cve_id] = _enrich_advisory_with_nvd(
+            record,
+            lookup_nvd_cve_detail(cve_id, store_dir=nvd_store_dir),
+        )
+
     evaluated = [
         _evaluate_candidate(component, step, cve_id, record, bundle)
         for cve_id, record in union_by_cve.items()
     ]
-    disposition_order = {"applicable": 0, "conditional": 1, "rejected": 2}
+    disposition_order = {"applicable": 0, "conditional": 1, "insufficient": 2, "rejected": 3}
     return sorted(
         evaluated,
         key=lambda item: (
@@ -453,21 +464,10 @@ def _evaluate_candidate(
             identity.input_identity,
             identity.rejection_reason,
         ),
-        _version_check(component, record),
     ]
-    if identity.product_match == TruthValue.TRUE:
-        checks.extend(_prerequisite_checks(component, step, record, bundle))
-        checks.append(_effect_check(step, cve_id, record))
-    else:
-        checks.append(
-            ApplicabilityCheck(
-                "technical_effect",
-                TruthValue.UNKNOWN,
-                step.description,
-                "",
-                "Effect validation skipped until product identity is confirmed.",
-            )
-        )
+    checks.extend(_applicability_dimension_checks(component, record))
+    checks.extend(_prerequisite_checks(component, step, record, bundle))
+    checks.append(_effect_check(step, cve_id, record))
 
     informational_checks = {
         "family",
@@ -481,19 +481,11 @@ def _evaluate_candidate(
         for check in checks
         if check.status == TruthValue.FALSE and check.name not in informational_checks
     ]
-    product_check = next(check for check in checks if check.name == "product")
-    if product_check.status == TruthValue.UNKNOWN:
-        false_checks.append(
-            ApplicabilityCheck(
-                name="product_evidence",
-                status=TruthValue.FALSE,
-                reason="No exact or sufficiently specific product binding was available.",
-            )
-        )
     unknown_checks = [
         check
         for check in checks
         if check.status == TruthValue.UNKNOWN
+        and check.status != TruthValue.NOT_APPLICABLE
         and check.name not in {"vendor", "part_number", *informational_checks}
     ]
 
@@ -543,6 +535,8 @@ def _evaluate_candidate(
         candidate.record_lifecycle("REJECTED", reason="; ".join(candidate.rejection_reasons[:2]))
     elif disposition == "conditional":
         candidate.record_lifecycle("CONDITIONAL")
+    elif disposition == "insufficient":
+        candidate.record_lifecycle("INSUFFICIENT")
     else:
         candidate.record_lifecycle("VERIFIED")
     return candidate
@@ -602,80 +596,178 @@ def _part_number_check(component: ComponentModel | None, record: AdvisoryRecord)
 
 
 def _component_deployed_version(component: ComponentModel | None) -> str:
+    return _observed_dimension(component, "firmware_version")
+
+
+def _observed_dimension(component: ComponentModel | None, dimension: str) -> str:
     if component is None:
         return ""
-    firmware = (component.firmware_version or "").strip()
-    if firmware:
-        return firmware
-    for entry in component.software or []:
-        if isinstance(entry, dict):
-            version = str(entry.get("version") or "").strip()
-            if version:
-                return version
-        text = str(entry)
-        match = re.search(r"['\"]version['\"]\s*:\s*['\"]([^'\"]+)['\"]", text)
-        if match:
-            return match.group(1).strip()
-        match = re.search(r"\bversion\s+(\d+(?:\.\d+)*)", text, flags=re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
+    if dimension == "firmware_version":
+        return (component.firmware_version or "").strip()
+    if dimension == "software_version":
+        if (component.software_version or "").strip():
+            return component.software_version.strip()
+        for entry in component.software or []:
+            if isinstance(entry, dict):
+                version = str(entry.get("version") or "").strip()
+                if version:
+                    return version
+            text = str(entry)
+            match = re.search(r"['\"]version['\"]\s*:\s*['\"]([^'\"]+)['\"]", text)
+            if match:
+                return match.group(1).strip()
+            match = re.search(r"\bversion\s+(\d+(?:\.\d+)*)", text, flags=re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+        return ""
+    if dimension == "hardware_version":
+        return (component.hardware_version or "").strip()
+    if dimension == "product_revision":
+        return (component.product_revision or "").strip()
+    if dimension == "serial_number":
+        return (component.serial_number or "").strip()
+    if dimension == "configuration":
+        return ""
     return ""
 
 
 def _version_check(component: ComponentModel | None, record: AdvisoryRecord) -> ApplicabilityCheck:
-    observed = _component_deployed_version(component)
-    constraints = _matching_version_constraints(component, record)
-    serial_all = any(
-        "all serial" in value.lower()
-        for value in ([record.affected_products, record.raw_text] + constraints)
-        if value
-    )
-    if serial_all and not constraints:
+    return _dimension_check(component, record, "firmware_version", gate_name="version")
+
+
+def _applicability_dimension_checks(
+    component: ComponentModel | None,
+    record: AdvisoryRecord,
+) -> list[ApplicabilityCheck]:
+    return [
+        _dimension_check(component, record, "firmware_version", gate_name="version"),
+        _dimension_check(component, record, "serial_number"),
+        _dimension_check(component, record, "software_version"),
+        _dimension_check(component, record, "hardware_version"),
+        _dimension_check(component, record, "product_revision"),
+        _dimension_check(component, record, "configuration"),
+    ]
+
+
+def _dimension_check(
+    component: ComponentModel | None,
+    record: AdvisoryRecord,
+    dimension: str,
+    *,
+    gate_name: str | None = None,
+) -> ApplicabilityCheck:
+    name = gate_name or dimension
+    constraints = _matching_constraints_for_dimension(component, record, dimension)
+    observed = _observed_dimension(component, dimension)
+    if not constraints:
         return ApplicabilityCheck(
-            "version",
-            TruthValue.TRUE,
-            "all serial numbers",
-            observed or "serial applicability",
-            provenance="serial_constraint",
+            name,
+            TruthValue.NOT_APPLICABLE,
+            "",
+            observed,
+            provenance=dimension,
         )
     required = "; ".join(constraints)
-    if not required:
-        if serial_all:
-            return ApplicabilityCheck(
-                "version",
-                TruthValue.TRUE,
-                "all serial numbers",
-                observed or "serial applicability",
-                provenance="serial_constraint",
-            )
+    parsed = [
+        item
+        for text in constraints
+        for item in parse_constraint_text(text)
+        if item.dimension == dimension
+        or (
+            dimension in {"firmware_version", "software_version"}
+            and item.dimension in {"firmware_version", "software_version"}
+        )
+    ]
+    if dimension == "serial_number":
+        return _serial_dimension_result(name, required, observed, parsed or constraints)
+    unbounded_all = any(text.strip().lower() in {"all versions", "all", "*"} for text in constraints) or (
+        parsed and all(item.operator in {"all", "*"} for item in parsed)
+    )
+    if unbounded_all:
         return ApplicabilityCheck(
-            "version", TruthValue.UNKNOWN, "", observed, "The advisory has no machine-readable version constraint."
+            name,
+            TruthValue.TRUE,
+            required,
+            observed or "all values",
+            provenance=dimension,
         )
     if not observed:
         return ApplicabilityCheck(
-            "version", TruthValue.UNKNOWN, required, "", "The deployed version is unknown."
-        )
-    if any(value.strip().lower() in {"all versions", "all", "*"} for value in constraints):
-        return ApplicabilityCheck("version", TruthValue.TRUE, required, observed)
-    if any("all serial" in value.lower() for value in constraints):
-        return ApplicabilityCheck("version", TruthValue.TRUE, required, observed)
-    status = _firmware_status(component, record)
-    if status == "affected":
-        return ApplicabilityCheck("version", TruthValue.TRUE, required, observed)
-    if status == "not_affected":
-        return ApplicabilityCheck(
-            "version",
-            TruthValue.FALSE,
+            name,
+            TruthValue.UNKNOWN,
             required,
-            observed,
-            "The deployed version is outside the affected range.",
+            "",
+            f"The deployed {dimension.replace('_', ' ')} is unknown.",
+            provenance=dimension,
         )
+    if dimension in {"firmware_version", "software_version", "hardware_version", "product_revision"}:
+        status = _compare_version_constraints(observed, constraints)
+        if status == "affected":
+            return ApplicabilityCheck(name, TruthValue.TRUE, required, observed, provenance=dimension)
+        if status == "not_affected":
+            return ApplicabilityCheck(
+                name,
+                TruthValue.FALSE,
+                required,
+                observed,
+                f"The deployed {dimension.replace('_', ' ')} is outside the affected range.",
+                provenance=dimension,
+            )
     return ApplicabilityCheck(
-        "version",
+        name,
         TruthValue.UNKNOWN,
         required,
         observed,
-        "The version constraint could not be compared safely.",
+        f"The {dimension.replace('_', ' ')} constraint could not be compared safely.",
+        provenance=dimension,
+    )
+
+
+def _serial_dimension_result(
+    name: str,
+    required: str,
+    observed: str,
+    parsed_or_texts: list,
+) -> ApplicabilityCheck:
+    if any(getattr(item, "operator", "") in {"all", "*"} for item in parsed_or_texts) or any(
+        "all serial" in str(item).lower() for item in parsed_or_texts
+    ):
+        return ApplicabilityCheck(
+            name,
+            TruthValue.TRUE,
+            required or "all serial numbers",
+            observed or "serial applicability",
+            provenance="serial_number",
+        )
+    if not observed:
+        return ApplicabilityCheck(
+            name,
+            TruthValue.UNKNOWN,
+            required,
+            "",
+            "The device serial number is unknown.",
+            provenance="serial_number",
+        )
+    results = [_evaluate_serial_constraint(observed, item) for item in parsed_or_texts]
+    known = [item for item in results if item is not None]
+    if any(item is True for item in results):
+        return ApplicabilityCheck(name, TruthValue.TRUE, required, observed, provenance="serial_number")
+    if known and all(item is False for item in known):
+        return ApplicabilityCheck(
+            name,
+            TruthValue.FALSE,
+            required,
+            observed,
+            "The device serial number is outside the affected range.",
+            provenance="serial_number",
+        )
+    return ApplicabilityCheck(
+        name,
+        TruthValue.UNKNOWN,
+        required,
+        observed,
+        "The serial-number constraint could not be compared safely.",
+        provenance="serial_number",
     )
 
 
@@ -741,29 +833,32 @@ def _effect_check(step: AttackStep, cve_id: str, record: AdvisoryRecord) -> Appl
 
 def _firmware_label(checks: list[ApplicabilityCheck]) -> str:
     check = next((item for item in checks if item.name == "version"), None)
-    if check is None or check.status == TruthValue.UNKNOWN:
+    if check is None or check.status in {TruthValue.UNKNOWN, TruthValue.NOT_APPLICABLE}:
         return "unknown"
     return "affected" if check.status == TruthValue.TRUE else "not_affected"
 
 
 def _condition_for_check(check: ApplicabilityCheck) -> str:
-    if check.name == "version":
+    if check.status == TruthValue.NOT_APPLICABLE:
+        return ""
+    if check.name == "serial_number":
         required = (check.required or "").lower()
-        if "serial" in required:
-            if "all serial" in required:
-                return ""
-            return "the device serial number is within the affected range"
+        if "all serial" in required:
+            return ""
+        return "the device serial number is within the affected range"
+    if check.name in {"version", "firmware_version", "software_version", "hardware_version", "product_revision", "configuration"}:
+        required = (check.required or "").lower()
         constraints = parse_constraint_text(check.required or "")
         if constraints:
             text = condition_text_for_constraint(constraints[0])
             if text:
                 return text
-        if "software" in required:
+        if check.name == "software_version" or "software" in required:
             bound = _extract_bound_from_values([check.required or ""])
             if bound:
                 return f"the deployed software version is earlier than {bound}"
             return "the deployed software version is within the affected range"
-        if "hardware" in required:
+        if check.name == "hardware_version" or "hardware" in required:
             bound = _extract_bound_from_values([check.required or ""])
             if bound:
                 return f"the deployed hardware version is earlier than {bound}"
@@ -1287,6 +1382,34 @@ def parse_primary_advisory_record(text: str) -> AdvisoryRecord | None:
         for item in product_evidence:
             if not item.cve_id:
                 item.cve_id = cve_id
+    product_evidence = merge_product_evidence(
+        product_evidence,
+        evidence_from_affected_product_text(
+            texts=[
+                ("affected_products", affected_products),
+                ("product", product),
+                *[("product_evidence", item.product_name) for item in product_evidence if item.product_name],
+            ],
+            cve_id=cve_id,
+            advisory_id=advisory_id,
+            source_type=source_type,
+            vendor=vendor,
+        ),
+    )
+    description = (fields.get("Description") or "").strip()
+    effects = _split_effects(fields.get("Effect") or "")
+    field_provenance = {
+        key: source_type
+        for key, value in (
+            ("description", description),
+            ("effects", effects),
+            ("cwes", cwes),
+            ("product", product),
+            ("affected_products", affected_products),
+            ("affected_versions", fields.get("Affected Versions") or ""),
+        )
+        if value
+    }
     return AdvisoryRecord(
         advisory_id=advisory_id,
         vendor=vendor,
@@ -1301,14 +1424,15 @@ def parse_primary_advisory_record(text: str) -> AdvisoryRecord | None:
         product_family=product_family,
         affected_versions=_split_versions(fields.get("Affected Versions") or ""),
         affected_product_constraints=constraints,
-        description=(fields.get("Description") or "").strip(),
-        effects=_split_effects(fields.get("Effect") or ""),
+        description=description,
+        effects=effects,
         network_access=_parse_prereq_value(fields.get("Prerequisites") or "", "network_access"),
         authentication_required=_parse_bool_prereq(fields.get("Prerequisites") or "", "authentication_required"),
         privileges_required=_parse_prereq_value(fields.get("Prerequisites") or "", "privileges_required"),
         user_interaction=_parse_prereq_value(fields.get("Prerequisites") or "", "user_interaction"),
         physical_access=_parse_bool_prereq(fields.get("Prerequisites") or "", "physical_access"),
         product_evidence=product_evidence,
+        field_provenance=field_provenance,
     )
 
 
@@ -1376,6 +1500,7 @@ def _records_from_block(block: str) -> list[AdvisoryRecord]:
                     advisory_id=record.advisory_id,
                     cve_id=cve_id,
                 ),
+                field_provenance=dict(record.field_provenance),
             )
         )
     return expanded
@@ -1432,6 +1557,137 @@ def _union_advisory_records(
             if not named_conflict
             else list(primary.product_evidence)
         ),
+        field_provenance={**secondary.field_provenance, **primary.field_provenance},
+    )
+
+
+def _enrich_advisory_with_nvd(record: AdvisoryRecord, nvd) -> AdvisoryRecord:
+    """Fill missing CVE-local fields from NVD. Stronger sources keep product/version."""
+    if nvd is None or not getattr(nvd, "cve_id", ""):
+        return record
+    if record.cves and nvd.cve_id.upper() not in {item.upper() for item in record.cves}:
+        return record
+
+    provenance = dict(record.field_provenance)
+    description = record.description
+    if is_sufficient_cve_description(description):
+        provenance.setdefault("description", record.source_type)
+    elif is_sufficient_cve_description(nvd.description):
+        description = nvd.description
+        provenance["description"] = nvd.source_type or "nvd"
+    elif description:
+        provenance.setdefault("description", record.source_type)
+
+    cwes = record.cwes
+    if cwes:
+        provenance.setdefault("cwes", record.source_type)
+    elif nvd.cwe_ids:
+        cwes = frozenset(item.upper() for item in nvd.cwe_ids)
+        provenance["cwes"] = nvd.source_type or "nvd"
+
+    effects = list(record.effects)
+    if effects:
+        provenance.setdefault("effects", record.source_type)
+    elif nvd.effects:
+        effects = list(nvd.effects)
+        provenance["effects"] = nvd.source_type or "nvd"
+
+    nvd_evidence = [ProductEvidence.from_dict(item) for item in nvd.product_evidence]
+    keep_nvd_versions = not _has_authoritative_firmware_scope(record)
+    if not keep_nvd_versions:
+        nvd_evidence = [
+            ProductEvidence.from_dict(
+                {**item.to_dict(), "version_constraint": "", "applicability_dimension": ""}
+            )
+            for item in nvd_evidence
+        ]
+
+    product = record.product
+    model = record.model
+    product_family = record.product_family
+    part_number = record.part_number
+    affected_products = record.affected_products
+    affected_versions = list(record.affected_versions)
+    affected_product_constraints = list(record.affected_product_constraints)
+    vendor = record.vendor
+    if not product and nvd.product:
+        product = nvd.product
+        provenance["product"] = nvd.source_type or "nvd"
+    if not vendor and nvd.vendor:
+        vendor = nvd.vendor
+        provenance["vendor"] = nvd.source_type or "nvd"
+    if not model and nvd.model:
+        model = nvd.model
+        provenance["model"] = nvd.source_type or "nvd"
+    if not product_family and nvd.product_family:
+        product_family = nvd.product_family
+        provenance["product_family"] = nvd.source_type or "nvd"
+    if not part_number and nvd.part_number:
+        part_number = nvd.part_number
+        provenance["part_number"] = nvd.source_type or "nvd"
+    if not affected_products and nvd.affected_products:
+        affected_products = "; ".join(nvd.affected_products)
+        provenance["affected_products"] = nvd.source_type or "nvd"
+    if keep_nvd_versions:
+        if not affected_versions and nvd.affected_versions:
+            affected_versions = list(nvd.affected_versions)
+            provenance["affected_versions"] = nvd.source_type or "nvd"
+        if not affected_product_constraints and nvd.affected_product_constraints:
+            affected_product_constraints = [
+                (
+                    str(item.get("product") or ""),
+                    str(item.get("version") or ""),
+                    str(item.get("part_number") or ""),
+                )
+                if isinstance(item, dict)
+                else item
+                for item in nvd.affected_product_constraints
+            ]
+            provenance["affected_product_constraints"] = nvd.source_type or "nvd"
+    else:
+        provenance.setdefault("affected_versions", record.source_type)
+
+    return AdvisoryRecord(
+        advisory_id=record.advisory_id,
+        vendor=vendor,
+        product=product,
+        affected_products=affected_products,
+        cves=list(record.cves),
+        cwes=cwes,
+        raw_text=record.raw_text,
+        source_type=record.source_type,
+        part_number=part_number,
+        model=model,
+        product_family=product_family,
+        affected_versions=affected_versions,
+        affected_product_constraints=affected_product_constraints,
+        description=description,
+        effects=effects,
+        network_access=record.network_access,
+        authentication_required=record.authentication_required,
+        privileges_required=record.privileges_required,
+        user_interaction=record.user_interaction,
+        physical_access=record.physical_access,
+        product_evidence=merge_product_evidence(record.product_evidence, nvd_evidence),
+        field_provenance=provenance,
+    )
+
+
+def _has_authoritative_firmware_scope(record: AdvisoryRecord) -> bool:
+    if any(_constraint_dimension(value) == "firmware_version" for value in record.affected_versions):
+        return True
+    if any(
+        _constraint_dimension(version) == "firmware_version"
+        for _product, version, _part in record.affected_product_constraints
+        if version
+    ):
+        return True
+    return any(
+        item.version_constraint
+        and source_rank(item.source) < source_rank("nvd")
+        and _constraint_dimension(item.version_constraint, item.applicability_dimension)
+        == "firmware_version"
+        for item in record.product_evidence
     )
 
 
@@ -1889,18 +2145,115 @@ def _extract_version_bound(record: AdvisoryRecord) -> str | None:
 
 
 def _firmware_status(component: ComponentModel | None, record: AdvisoryRecord) -> str:
-    observed = _component_deployed_version(component)
-    if component is None or not observed:
+    observed = _observed_dimension(component, "firmware_version")
+    constraints = _matching_constraints_for_dimension(component, record, "firmware_version")
+    return _compare_version_constraints(observed, constraints)
+
+
+def _matching_version_constraints(
+    component: ComponentModel | None,
+    record: AdvisoryRecord,
+) -> list[str]:
+    return _matching_constraints_for_dimension(component, record, "firmware_version")
+
+
+def _constraint_dimension(
+    text: str,
+    explicit: str = "",
+    component: ComponentModel | None = None,
+) -> str:
+    if explicit:
+        dimension = explicit
+    else:
+        parsed = parse_constraint_text(text)
+        if parsed:
+            dimension = parsed[0].dimension
+        elif "all serial" in (text or "").lower():
+            dimension = "serial_number"
+        else:
+            dimension = "firmware_version"
+    return _rebind_version_dimension(dimension, component)
+
+
+def _rebind_version_dimension(dimension: str, component: ComponentModel | None) -> str:
+    """Unlabeled version constraints follow the populated deployment field.
+
+    Source wording still wins for serial/hardware/revision/configuration.
+    When the source only says "version" and the deployment has software but no
+    firmware, bind to software_version.
+    """
+    if dimension != "firmware_version" or component is None:
+        return dimension
+    if _observed_dimension(component, "firmware_version"):
+        return dimension
+    if _observed_dimension(component, "software_version"):
+        return "software_version"
+    return dimension
+
+
+def _matching_constraints_for_dimension(
+    component: ComponentModel | None,
+    record: AdvisoryRecord,
+    dimension: str,
+) -> list[str]:
+    matches: list[str] = []
+    dimensioned = False
+    if component and record.product_evidence:
+        for item in record.product_evidence:
+            text = item.version_constraint or ""
+            if not text:
+                continue
+            item_dim = _constraint_dimension(text, item.applicability_dimension, component)
+            if item_dim != dimension:
+                continue
+            dimensioned = True
+            matched, _, _ = _entry_matches_component(
+                item.product_name or item.model,
+                item.part_number,
+                component,
+            )
+            if matched:
+                matches.append(text)
+        if matches:
+            return list(dict.fromkeys(matches))
+        if dimensioned:
+            return []
+    version_dimensions = {"firmware_version", "software_version"}
+    if component and record.affected_product_constraints and dimension in version_dimensions:
+        versioned = False
+        for product, version, part_number in record.affected_product_constraints:
+            if version:
+                versioned = True
+            if _constraint_dimension(version, component=component) != dimension:
+                continue
+            matched, _, _ = _entry_matches_component(product, part_number, component)
+            if matched and version:
+                matches.append(version)
+        if matches:
+            return list(dict.fromkeys(matches))
+        if versioned:
+            return []
+    if dimension in version_dimensions:
+        return list(
+            dict.fromkeys(
+                value
+                for value in record.affected_versions
+                if value and _constraint_dimension(value, component=component) == dimension
+            )
+        )
+    return []
+
+
+def _compare_version_constraints(observed: str, constraints: list[str]) -> str:
+    if not constraints:
+        return "unknown"
+    if any(value.strip().lower() in {"all versions", "all", "*"} for value in constraints):
+        return "affected"
+    if not observed:
         return "unknown"
     installed = _parse_version_tuple(observed)
     if installed is None:
         return "unknown"
-    constraints = _matching_version_constraints(component, record)
-    if any(value.strip().lower() in {"all versions", "all", "*"} for value in constraints):
-        return "affected"
-    if not constraints:
-        bound = _extract_version_bound(record)
-        constraints = [f"prior to {bound}"] if bound else []
     results = [
         result
         for constraint in constraints
@@ -1911,35 +2264,45 @@ def _firmware_status(component: ComponentModel | None, record: AdvisoryRecord) -
     return "affected" if any(results) else "not_affected"
 
 
-def _matching_version_constraints(
-    component: ComponentModel | None,
-    record: AdvisoryRecord,
-) -> list[str]:
-    if component and record.affected_product_constraints:
-        matches: list[str] = []
-        versioned = False
-        for product, version, part_number in record.affected_product_constraints:
-            if version:
-                versioned = True
-            matched, _, _ = _entry_matches_component(product, part_number, component)
-            if matched and version:
-                matches.append(version)
-        if matches:
-            return list(dict.fromkeys(matches))
-        if versioned:
-            return []
-    if component and record.product_evidence:
-        evidence_versions = [
-            item.version_constraint
-            for item in record.product_evidence
-            if item.version_constraint
-            and _entry_matches_component(item.product_name, item.part_number, component)[0]
-        ]
-        if evidence_versions:
-            return list(dict.fromkeys(evidence_versions))
-        if any(item.version_constraint for item in record.product_evidence):
-            return []
-    return list(record.affected_versions)
+def _evaluate_serial_constraint(observed: str, constraint) -> bool | None:
+    if isinstance(constraint, str):
+        parsed = parse_constraint_text(constraint)
+        if not parsed:
+            return None
+        constraint = parsed[0]
+    operator = getattr(constraint, "operator", "")
+    value = getattr(constraint, "value", "") or ""
+    if operator in {"all", "*"}:
+        return True
+    observed_key = _serial_compare_key(observed)
+    bound_key = _serial_compare_key(value)
+    if not observed_key:
+        return None
+    if operator in {"=", "eq", "exact"}:
+        if "*" in value:
+            prefix = _serial_prefix(value)
+            return observed_key.startswith(prefix) if prefix else None
+        return observed_key == bound_key
+    prefix = _serial_prefix(value)
+    observed_prefix = observed_key[: len(prefix)] if prefix else observed_key
+    if not prefix:
+        return None
+    if operator in {"<=", "and_prior", "through"}:
+        return observed_prefix <= prefix
+    if operator in {">=", "and_later"}:
+        return observed_prefix >= prefix
+    return None
+
+
+def _serial_compare_key(value: str) -> str:
+    return re.sub(r"[^0-9A-Za-z]+", "", value or "").upper()
+
+
+def _serial_prefix(value: str) -> str:
+    stars = (value or "").find("*")
+    if stars >= 0:
+        return _serial_compare_key(value[:stars])
+    return _serial_compare_key(value)
 
 
 def _extract_bound_from_values(values: list[str]) -> str | None:
@@ -1960,7 +2323,7 @@ def _evaluate_version_constraint(
 ) -> bool | None:
     text = constraint.strip()
     lowered = text.lower()
-    if "all serial" in lowered or lowered in {"all versions", "all", "*"}:
+    if lowered in {"all versions", "all", "*"}:
         return True
     versions = [
         _parse_version_tuple(match)

@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 from rag.defense.models import RecommendationPolicyState
 from rag.defense.recommendation_policy import SOURCE_ATTACK, SOURCE_CSAF
 from rag.defense.report_pipeline import (
+    D3FEND_SECTION_TITLE,
     NO_ACTIONABLE_RECOMMENDATION,
     SECTION_TITLE,
     build_defense_recommendation_report,
@@ -184,6 +185,7 @@ def test_default_cli_output_unchanged(monkeypatch, capsys):
     )
     assert out == f"{NARRATIVE}\n\n"
     assert SECTION_TITLE not in out
+    assert D3FEND_SECTION_TITLE not in out
     assert "ATT&CK" not in out
     assert "Vendor remediation" not in out
     assert err == ""
@@ -211,7 +213,9 @@ def test_show_defenses_appends_section_after_narrative(monkeypatch, capsys, tmp_
     )
     assert out.startswith(f"{NARRATIVE}\n\n{SECTION_TITLE}\n")
     assert "Vendor remediation: Update to V2.0." in out
-    assert out.index(NARRATIVE) < out.index(SECTION_TITLE)
+    assert D3FEND_SECTION_TITLE in out
+    assert "Isolate — D3-NI Network Isolation:" in out
+    assert out.index(NARRATIVE) < out.index(SECTION_TITLE) < out.index(D3FEND_SECTION_TITLE)
 
 
 def test_stage6_rendered_text_is_reused_not_rewritten():
@@ -375,6 +379,7 @@ def test_cli_show_defenses_does_not_reindex(monkeypatch, capsys, tmp_path):
 
 
 def test_pipeline_does_not_call_llm():
+    import rag.defense.d3fend_controls as d3fend_controls
     import rag.defense.report_pipeline as pipeline
 
     source = inspect.getsource(pipeline)
@@ -386,6 +391,9 @@ def test_pipeline_does_not_call_llm():
     assert inspect.getsource(pipeline.build_defense_recommendation_report).count(
         "render_actionable_recommendations"
     ) == 1
+    d3fend_source = inspect.getsource(d3fend_controls)
+    assert "ollama" not in d3fend_source.lower()
+    assert "rag.generation" not in d3fend_source
 
 
 def test_no_mutation_of_scenario_narrative_result():

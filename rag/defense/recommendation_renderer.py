@@ -149,15 +149,31 @@ def _rendered_text(candidate: RecommendationCandidate) -> str:
 def _render_csaf(candidate: RecommendationCandidate) -> str:
     content = candidate.content
     if candidate.policy_state is RecommendationPolicyState.CONDITIONAL:
-        prefix = _CONDITIONAL_PREFIX.get(candidate.category) or f"Conditional {candidate.category}"
+        prefix = _conditional_prefix(candidate)
         return (
             f"{prefix}: {_ensure_sentence(content)} "
             f"This recommendation is conditional because {render_condition_clause(candidate.conditions)}."
         )
-    prefix = _ELIGIBLE_PREFIX.get(candidate.category) or candidate.category
+    prefix = _eligible_prefix(candidate)
     if content:
         return f"{prefix}: {content}"
     return f"{prefix}:"
+
+
+def _eligible_prefix(candidate: RecommendationCandidate) -> str:
+    if candidate.scope == "advisory_level":
+        if candidate.category == "vendor_fix":
+            return "Advisory-level vendor remediation"
+        if candidate.category == "workaround":
+            return "Advisory-level workaround"
+        return "Advisory-level mitigation"
+    return _ELIGIBLE_PREFIX.get(candidate.category) or candidate.category
+
+
+def _conditional_prefix(candidate: RecommendationCandidate) -> str:
+    if candidate.scope == "advisory_level":
+        return f"Conditional {_eligible_prefix(candidate).lower()}"
+    return _CONDITIONAL_PREFIX.get(candidate.category) or f"Conditional {candidate.category}"
 
 
 def _render_attack(candidate: RecommendationCandidate) -> str:

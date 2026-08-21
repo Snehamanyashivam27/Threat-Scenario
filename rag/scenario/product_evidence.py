@@ -136,6 +136,8 @@ class ProductEvidence:
     scope: str = ""
     specificity_notes: list[str] = field(default_factory=list)
     source_rank: int = 100
+    applicability_dimension: str = ""
+    source_field: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -166,6 +168,8 @@ class ProductEvidence:
             scope=str(data.get("scope") or ""),
             specificity_notes=list(notes),
             source_rank=int(data.get("source_rank") or 100),
+            applicability_dimension=str(data.get("applicability_dimension") or ""),
+            source_field=str(data.get("source_field") or ""),
         )
 
 
@@ -214,9 +218,17 @@ Matcher = Callable[[str, str, ComponentModel], tuple[bool, str, str]]
 
 def source_rank(source: str) -> int:
     ranks = {
-        "cisa_csaf": 0,
+        "vendor_csaf": 0,
+        "vendor_advisory": 0,
+        "cisa_csaf": 1,
         "cisa_ics_advisory": 1,
-        "cisa_csv": 2,
+        "nvd": 2,
+        "nvd_cve": 2,
+        "cisa_csv": 3,
+        "cisa_ics_advisory_csv": 3,
+        "attack": 4,
+        "enterprise-attack.json": 4,
+        "ics-attack.json": 4,
     }
     return ranks.get((source or "").lower(), 50)
 

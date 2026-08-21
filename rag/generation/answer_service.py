@@ -264,7 +264,10 @@ class DeterministicAnswerService(AnswerService):
         sector = advisory.get("sector", "")
         affected = advisory.get("affected products", "")
 
-        focus_cve = next(iter(sorted(query_cves & cls._split_identifiers(cves)))) if query_cves else ""
+        matched_cves = query_cves & cls._split_identifiers(cves) if query_cves else set()
+        focus_cve = next(iter(sorted(matched_cves)), "")
+        if query_cves and not matched_cves:
+            return f"I could not derive a concise answer from the selected context for: {query}"
         if not focus_cve and query_cves:
             focus_cve = next(iter(sorted(query_cves)))
         if not focus_cve and cves:

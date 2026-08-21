@@ -67,6 +67,7 @@ def test_remediation_urls_extracted():
 def test_remediation_product_ids_extracted():
     vendor_fix = next(item for item in _actions("CVE-2030-80001") if item.category == "vendor_fix")
     assert vendor_fix.product_ids == ["CSAFPID-0001"]
+    assert vendor_fix.scope == "product_specific"
 
 
 def test_product_status_fixed_extracted():
@@ -129,6 +130,59 @@ def test_malformed_optional_fields_do_not_crash():
     assert empty == []
     missing = lookup_csaf_remediations("/no/such/csaf/dir", cve_id="CVE-2030-80001")
     assert missing == []
+
+
+def test_blank_line_details_become_separate_sentences(tmp_path):
+    path = tmp_path / "paragraph-details.json"
+    path.write_text(
+        """
+{
+  "document": {
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "title": "Paragraph Details",
+    "tracking": {"id": "ICSA-30-004-01", "status": "final", "version": "1"},
+    "publisher": {"category": "coordinator", "name": "Example", "namespace": "https://example.invalid/"}
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2030-80040",
+      "remediations": [
+        {
+          "category": "vendor_fix",
+          "details": "Update to V2.0 or later version\\n\\nThe firmware ModuleA V2.0 is present within \\"Package\\" V2.0"
+        },
+        {
+          "category": "vendor_fix",
+          "details": "Update to V3.0 or later version.\\n\\nThe firmware ModuleB V3.0 is present within Package V3.0"
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2030-80041",
+      "remediations": [
+        {
+          "category": "none_available",
+          "details": "Currently no fix is available"
+        }
+      ]
+    }
+  ]
+}
+""".strip(),
+        encoding="utf-8",
+    )
+    records = {item.cve_id: item for item in load_csaf_remediation_records(path)}
+    first, second = records["CVE-2030-80040"].remediations[:2]
+    assert first.details == (
+        'Update to V2.0 or later version. The firmware ModuleA V2.0 is present within "Package" V2.0.'
+    )
+    assert "later version The firmware" not in first.details
+    assert second.details == (
+        "Update to V3.0 or later version. The firmware ModuleB V3.0 is present within Package V3.0."
+    )
+    assert ".." not in second.details
+    assert records["CVE-2030-80041"].remediations[0].details == "Currently no fix is available"
 
 
 def test_inventory_does_not_mutate_scenario_result():

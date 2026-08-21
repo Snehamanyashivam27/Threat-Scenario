@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Any
 
 from rag.defense.models import CveRemediationRecord, RemediationAction
+from rag.defense.product_binding import classify_remediation_scope
+from rag.ingestion.csaf.parser import index_product_tree
 from rag.utils.text import clean_text, dedupe_preserve_order
 
 
@@ -68,6 +70,8 @@ def _records_from_document(data: dict[str, Any], source_path: str) -> list[CveRe
     if not isinstance(document, dict):
         return []
     advisory_id = _advisory_id(document)
+    tree = data.get("product_tree") if isinstance(data.get("product_tree"), dict) else {}
+    product_index = index_product_tree(tree)
     records: list[CveRemediationRecord] = []
     seen_cves: set[str] = set()
     for vulnerability in data.get("vulnerabilities") or []:
@@ -100,6 +104,7 @@ def _records_from_document(data: dict[str, Any], source_path: str) -> list[CveRe
                 provenance=f"{advisory_id}::{cve_id}::{source_path}",
                 remediations=remediations,
                 fixed_product_ids=fixed_ids,
+                product_index=product_index,
             )
         )
     return records
@@ -116,7 +121,7 @@ def _advisory_id(document: dict[str, Any]) -> str:
 
 
 def _remediation_action(item: dict[str, Any]) -> RemediationAction | None:
-    details = clean_text(str(item.get("details") or ""))
+    details = _clean_remediation_details(item.get("details") or "")
     category = clean_text(str(item.get("category") or ""))
     urls = _extract_urls(item)
     product_ids = _id_list(item.get("product_ids"))
@@ -129,7 +134,28 @@ def _remediation_action(item: dict[str, Any]) -> RemediationAction | None:
         urls=urls,
         product_ids=product_ids,
         group_ids=group_ids,
+        scope=classify_remediation_scope(product_ids),
     )
+
+
+def _clean_remediation_details(raw: Any) -> str:
+    """Keep source paragraphs as separate sentences after whitespace collapse.
+
+    CSAF `details` often uses a blank line between the update instruction and a
+    follow-on firmware/package note. Collapsing whitespace without punctuation
+    would glue them into one clause.
+    """
+    text = str(raw or "").replace("\r\n", "\n").replace("\r", "\n")
+    paragraphs = [clean_text(part) for part in re.split(r"\n\s*\n+", text)]
+    paragraphs = [part for part in paragraphs if part]
+    if len(paragraphs) <= 1:
+        return paragraphs[0] if paragraphs else ""
+    sentences: list[str] = []
+    for part in paragraphs:
+        if not re.search(r"[.!?]$", part):
+            part = f"{part}."
+        sentences.append(part)
+    return " ".join(sentences)
 
 
 def _extract_urls(item: dict[str, Any]) -> list[str]:

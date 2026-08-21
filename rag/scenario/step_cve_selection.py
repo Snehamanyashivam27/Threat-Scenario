@@ -26,6 +26,7 @@ HARD_SELECTION_GATES = frozenset(
     {
         "product",
         "version",
+        "software_version",
         "technical_effect",
         *PREREQUISITE_GATE_NAMES,
     }
@@ -75,11 +76,9 @@ def select_best_step_candidate(
             candidate.record_lifecycle("NARRATOR_ELIGIBLE")
             survivors.append(candidate)
         else:
-            reason = "effect_not_confirmed" if not _effect_true(candidate) else "hard_gate_failed"
-            candidate.record_lifecycle("NOT_SELECTED", reason=reason)
+            candidate.record_lifecycle("NOT_SELECTED", reason=_candidate_not_selected_reason(candidate))
     survivors.sort(key=lambda item: _selection_rank_key(item, component))
     selected = survivors[0] if survivors else None
-    reason = "no_eligible_candidate"
     if selected is not None:
         selected.record_lifecycle("SELECTED")
         for alt in survivors[1:]:
@@ -88,6 +87,8 @@ def select_best_step_candidate(
             f"selected:{selected.cve_id};disposition={selected.disposition};"
             f"final_status={selected.final_status}"
         )
+    else:
+        reason = _no_selection_reason(candidates)
     return StepCveSelection(
         step_id=step_id,
         selected=selected,
@@ -100,6 +101,26 @@ def select_best_step_candidate(
 def _effect_true(candidate: CandidateEvidence) -> bool:
     checks = {check.name: check.status for check in candidate.checks}
     return checks.get("technical_effect") == TruthValue.TRUE
+
+
+def _candidate_not_selected_reason(candidate: CandidateEvidence) -> str:
+    if candidate.disposition == "rejected":
+        return "rejected"
+    if candidate.disposition == "insufficient":
+        return "insufficient"
+    if not _effect_true(candidate):
+        return "effect_not_confirmed"
+    return "hard_gate_failed"
+
+
+def _no_selection_reason(candidates: list[CandidateEvidence]) -> str:
+    """ABSTAIN is empty discovery. REJECTED/INSUFFICIENT are evaluated outcomes."""
+    if not candidates:
+        return "abstain"
+    dispositions = {candidate.disposition for candidate in candidates}
+    if dispositions <= {"rejected"}:
+        return "rejected"
+    return "insufficient"
 
 
 def _is_narration_eligible(

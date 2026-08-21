@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+import re
 
 
 @dataclass(frozen=True, slots=True)
@@ -139,79 +140,68 @@ def parse_constraint_text(
     lowered = text.lower()
     constraints: list[ApplicabilityConstraint] = []
 
+    def _add(dimension: str, operator: str, value: str = "") -> None:
+        constraints.append(
+            ApplicabilityConstraint(
+                dimension=dimension,
+                operator=operator,
+                value=value,
+                source=source,
+                advisory_id=advisory_id,
+                cve_id=cve_id,
+            )
+        )
+
     if "all serial" in lowered:
-        constraints.append(
-            ApplicabilityConstraint(
-                dimension="serial_number",
-                operator="all",
-                value="",
-                source=source,
-                advisory_id=advisory_id,
-                cve_id=cve_id,
-            )
-        )
+        _add("serial_number", "all")
 
-    if re_all_versions(lowered):
-        constraints.append(
-            ApplicabilityConstraint(
-                dimension="firmware_version",
-                operator="all",
-                value="",
-                source=source,
-                advisory_id=advisory_id,
-                cve_id=cve_id,
-            )
-        )
-
-    import re
-
-    for match in re.finditer(
-        r"(?:prior to|before|earlier than|<)\s*(V?\d+(?:\.\d+)*)",
+    serial_prior = re.search(
+        r"serial\s+numbers?\s+(\S+)\s+and prior",
         text,
         flags=re.IGNORECASE,
-    ):
-        constraints.append(
-            ApplicabilityConstraint(
-                dimension=_infer_dimension(text),
-                operator="<",
-                value=match.group(1),
-                source=source,
-                advisory_id=advisory_id,
-                cve_id=cve_id,
-            )
-        )
-    for match in re.finditer(
-        r'(?:versions?\s*)?"?(\d+(?:\.\d+)*)"?\s+and prior',
+    )
+    if serial_prior:
+        _add("serial_number", "<=", serial_prior.group(1).rstrip(".,;"))
+    serial_later = re.search(
+        r"serial\s+numbers?\s+(\S+)\s+and later",
         text,
         flags=re.IGNORECASE,
-    ):
-        constraints.append(
-            ApplicabilityConstraint(
-                dimension=_infer_dimension(text),
-                operator="<=",
-                value=match.group(1),
-                source=source,
-                advisory_id=advisory_id,
-                cve_id=cve_id,
-            )
-        )
-    for match in re.finditer(
-        r"\bversion\s+(\d+(?:\.\d+)*)\b",
+    )
+    if serial_later:
+        _add("serial_number", ">=", serial_later.group(1).rstrip(".,;"))
+    serial_exact = re.search(
+        r"serial\s+numbers?\s+(\S+)\s*$",
         text,
         flags=re.IGNORECASE,
-    ):
-        if "prior" in lowered or "before" in lowered or "<" in text:
-            continue
-        constraints.append(
-            ApplicabilityConstraint(
-                dimension=_infer_dimension(text),
-                operator="=",
-                value=match.group(1),
-                source=source,
-                advisory_id=advisory_id,
-                cve_id=cve_id,
-            )
-        )
+    )
+    if serial_exact and "and prior" not in lowered and "and later" not in lowered and "all serial" not in lowered:
+        _add("serial_number", "=", serial_exact.group(1).rstrip(".,;"))
+
+    bounded = any(token in lowered for token in ("prior", "before", "earlier", "later", "<", ">"))
+    if re_all_versions(lowered) and "serial" not in lowered and not bounded:
+        _add(_infer_dimension(text), "all")
+
+    if "serial" not in lowered:
+        for match in re.finditer(
+            r"(?:prior to|before|earlier than|<)\s*(V?\d+(?:\.\d+)*)",
+            text,
+            flags=re.IGNORECASE,
+        ):
+            _add(_infer_dimension(text), "<", match.group(1))
+        for match in re.finditer(
+            r'(?:versions?\s*)?"?(\d+(?:\.\d+)*)"?\s+and prior',
+            text,
+            flags=re.IGNORECASE,
+        ):
+            _add(_infer_dimension(text), "<=", match.group(1))
+        for match in re.finditer(
+            r"\bversion\s+(\d+(?:\.\d+)*)\b",
+            text,
+            flags=re.IGNORECASE,
+        ):
+            if "prior" in lowered or "before" in lowered or "<" in text:
+                continue
+            _add(_infer_dimension(text), "=", match.group(1))
     return constraints
 
 
@@ -227,6 +217,10 @@ def _infer_dimension(text: str) -> str:
         return "hardware_version"
     if "software" in lowered or "application" in lowered:
         return "software_version"
+    if "revision" in lowered:
+        return "product_revision"
+    if "configuration" in lowered:
+        return "configuration"
     return "firmware_version"
 
 

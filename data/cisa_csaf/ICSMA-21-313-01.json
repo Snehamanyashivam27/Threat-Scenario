@@ -1,0 +1,567 @@
+{
+  "document": {
+    "acknowledgments": [
+      {
+        "names": [
+          "Michael Aguilar"
+        ],
+        "organization": "Secureworks Adversary Group",
+        "summary": "reported these vulnerabilities to Philips"
+      }
+    ],
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "distribution": {
+      "text": "Disclosure is not limited",
+      "tlp": {
+        "label": "WHITE",
+        "url": "https://www.cisa.gov/news-events/news/traffic-light-protocol-tlp-definitions-and-usage"
+      }
+    },
+    "lang": "en-US",
+    "notes": [
+      {
+        "category": "legal_disclaimer",
+        "text": "This product is provided subject to this Notification (https://www.cisa.gov/notification) and this Privacy & Use policy (https://www.cisa.gov/privacy-policy).",
+        "title": "Legal Notice and Terms of Use"
+      },
+      {
+        "category": "summary",
+        "text": "Successful exploitation of these vulnerabilities may allow an attacker with operator level access to view system configuration, view system files, and export data (including patient data) to an untrusted environment.",
+        "title": "Risk evaluation"
+      },
+      {
+        "category": "other",
+        "text": "Healthcare and Public Health",
+        "title": "Critical infrastructure sectors"
+      },
+      {
+        "category": "other",
+        "text": "Worldwide",
+        "title": "Countries/areas deployed"
+      },
+      {
+        "category": "other",
+        "text": "Netherlands",
+        "title": "Company headquarters location"
+      },
+      {
+        "category": "general",
+        "text": "CISA recommends users take defensive measures to minimize the risk of exploitation of these vulnerabilities.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the internet.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics. Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "No known public exploitation specifically targeting these vulnerabilities has been reported to CISA at this time. These vulnerabilities are not exploitable remotely.",
+        "title": "Recommended Practices"
+      }
+    ],
+    "publisher": {
+      "category": "coordinator",
+      "contact_details": "central@cisa.dhs.gov",
+      "name": "CISA",
+      "namespace": "https://www.cisa.gov/"
+    },
+    "references": [
+      {
+        "category": "self",
+        "summary": "ICS Advisory ICSMA-21-313-01 JSON",
+        "url": "https://raw.githubusercontent.com/cisagov/CSAF/develop/csaf_files/OT/white/2021/icsma-21-313-01.json"
+      },
+      {
+        "category": "self",
+        "summary": "ICSA Advisory ICSMA-21-313-01 - Web Version",
+        "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-21-313-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/uscert/ics/alerts/ICS-ALERT-10-301-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/resources-tools/resources/ics-recommended-practices"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/sites/default/files/publications/Cybersecurity_Best_Practices_for_Industrial_Control_Systems.pdf"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/topics/industrial-control-systems"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/news-events/ics-alerts/ics-alert-10-301-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/sites/default/files/recommended_practices/NCCIC_ICS-CERT_Defense_in_Depth_2016_S508C.pdf"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/news-events/news/targeted-cyber-intrusion-detection-and-mitigation-strategies-update-b"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/secure-our-world/teach-employees-avoid-phishing"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks"
+      }
+    ],
+    "title": "Philips MRI 1.5T and 3T (Update A)",
+    "tracking": {
+      "current_release_date": "2026-03-26T06:00:00.000000Z",
+      "generator": {
+        "date": "2026-03-25T21:11:23.399062Z",
+        "engine": {
+          "name": "CISA CSAF Generator",
+          "version": "1.0.0"
+        }
+      },
+      "id": "ICSMA-21-313-01",
+      "initial_release_date": "2021-11-24T07:00:00.000000Z",
+      "revision_history": [
+        {
+          "date": "2021-11-24T07:00:00.000000Z",
+          "legacy_version": "Initial",
+          "number": "1",
+          "summary": "Initial Publication"
+        },
+        {
+          "date": "2026-03-26T06:00:00.000000Z",
+          "legacy_version": "Update A",
+          "number": "2",
+          "summary": "Update A - Updated Risk Evaluation, Affected versions updated to \"5.3 to 5.8.1\", CVSS"
+        }
+      ],
+      "status": "final",
+      "version": "2"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "branches": [
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=5.3|<5.8.1",
+                "product": {
+                  "name": "Philips MRI 1.5T: >=5.3|<5.8.1",
+                  "product_id": "CSAFPID-0001"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "MRI 1.5T"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=5.3|<5.8.1",
+                "product": {
+                  "name": "Philips MRI 3T: >=5.3|<5.8.1",
+                  "product_id": "CSAFPID-0002"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "MRI 3T"
+          }
+        ],
+        "category": "vendor",
+        "name": "Philips"
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2021-26262",
+      "cwe": {
+        "id": "CWE-286",
+        "name": "Incorrect User Management"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "The software does not restrict or incorrectly restricts access to a resource from an unauthorized actor.",
+          "title": "Vulnerability Summary"
+        },
+        {
+          "category": "details",
+          "text": "SSVCv2/E:N/A:N/2026-03-25T06:00:00.000000Z",
+          "title": "SSVC"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "cwe.mitre.org",
+          "url": "https://cwe.mitre.org/data/definitions/286.html"
+        },
+        {
+          "category": "external",
+          "summary": "www.cve.org",
+          "url": "https://www.cve.org/CVERecord?id=CVE-2021-26262"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/4.0#CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Philips released a software upgrade version 5.8.2 to remediate these vulnerabilities and can be referenced by FCO78100619.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "As an interim mitigation to these vulnerabilities, Philips recommends the following:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Users should operate all Philips deployed and supported products within Philips authorized specifications, including physical and logical controls. Only allowed personnel are permitted in the vicinity of the product. Refer to the Philips instructions for use (IFU) available on InCenter: https://incenter.medical.philips.com/.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://incenter.medical.philips.com/"
+        },
+        {
+          "category": "mitigation",
+          "details": "Users with questions about their specific MRI product should contact a Philips service support team or regional service support. Philips contact information is available at the Philips customer service solutions website https://www.usa.philips.com/healthcare/solutions/customer-service-solutions or by calling 1-800-722-9377.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://www.usa.philips.com/healthcare/solutions/customer-service-solutions"
+        },
+        {
+          "category": "mitigation",
+          "details": "For more information regarding these vulnerabilities, see the Philips product security advisory website http://www.philips.com/productsecurity.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "http://www.philips.com/productsecurity"
+        },
+        {
+          "category": "mitigation",
+          "details": "Users can also visit the Philips product security website http://www.philips.com/productsecurity for the latest security information for Philips products.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "http://www.philips.com/productsecurity"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.2,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2021-26248",
+      "cwe": {
+        "id": "CWE-708",
+        "name": "Incorrect Ownership Assignment"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "The software assigns an owner who is outside the intended control sphere to a resource.",
+          "title": "Vulnerability Summary"
+        },
+        {
+          "category": "details",
+          "text": "SSVCv2/E:N/A:N/2026-03-25T06:00:00.000000Z",
+          "title": "SSVC"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "cwe.mitre.org",
+          "url": "https://cwe.mitre.org/data/definitions/708.html"
+        },
+        {
+          "category": "external",
+          "summary": "www.cve.org",
+          "url": "https://www.cve.org/CVERecord?id=CVE-2021-26248"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/4.0#CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Philips released a software upgrade version 5.8.2 to remediate these vulnerabilities and can be referenced by FCO78100619.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "As an interim mitigation to these vulnerabilities, Philips recommends the following:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Users should operate all Philips deployed and supported products within Philips authorized specifications, including physical and logical controls. Only allowed personnel are permitted in the vicinity of the product. Refer to the Philips instructions for use (IFU) available on InCenter: https://incenter.medical.philips.com/.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://incenter.medical.philips.com/"
+        },
+        {
+          "category": "mitigation",
+          "details": "Users with questions about their specific MRI product should contact a Philips service support team or regional service support. Philips contact information is available at the Philips customer service solutions website https://www.usa.philips.com/healthcare/solutions/customer-service-solutions or by calling 1-800-722-9377.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://www.usa.philips.com/healthcare/solutions/customer-service-solutions"
+        },
+        {
+          "category": "mitigation",
+          "details": "For more information regarding these vulnerabilities, see the Philips product security advisory website http://www.philips.com/productsecurity.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "http://www.philips.com/productsecurity"
+        },
+        {
+          "category": "mitigation",
+          "details": "Users can also visit the Philips product security website http://www.philips.com/productsecurity for the latest security information for Philips products.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "http://www.philips.com/productsecurity"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.2,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2021-42744",
+      "cwe": {
+        "id": "CWE-552",
+        "name": "Files or Directories Accessible to External Parties"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "The product exposes sensitive information to an actor not explicitly authorized to have access.",
+          "title": "Vulnerability Summary"
+        },
+        {
+          "category": "details",
+          "text": "SSVCv2/E:N/A:N/2026-03-25T06:00:00.000000Z",
+          "title": "SSVC"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "cwe.mitre.org",
+          "url": "https://cwe.mitre.org/data/definitions/552.html"
+        },
+        {
+          "category": "external",
+          "summary": "www.cve.org",
+          "url": "https://www.cve.org/CVERecord?id=CVE-2021-42744"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/4.0#CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Philips released a software upgrade version 5.8.2 to remediate these vulnerabilities and can be referenced by FCO78100619.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "As an interim mitigation to these vulnerabilities, Philips recommends the following:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Users should operate all Philips deployed and supported products within Philips authorized specifications, including physical and logical controls. Only allowed personnel are permitted in the vicinity of the product. Refer to the Philips instructions for use (IFU) available on InCenter: https://incenter.medical.philips.com/.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://incenter.medical.philips.com/"
+        },
+        {
+          "category": "mitigation",
+          "details": "Users with questions about their specific MRI product should contact a Philips service support team or regional service support. Philips contact information is available at the Philips customer service solutions website https://www.usa.philips.com/healthcare/solutions/customer-service-solutions or by calling 1-800-722-9377.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://www.usa.philips.com/healthcare/solutions/customer-service-solutions"
+        },
+        {
+          "category": "mitigation",
+          "details": "For more information regarding these vulnerabilities, see the Philips product security advisory website http://www.philips.com/productsecurity.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "http://www.philips.com/productsecurity"
+        },
+        {
+          "category": "mitigation",
+          "details": "Users can also visit the Philips product security website http://www.philips.com/productsecurity for the latest security information for Philips products.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "http://www.philips.com/productsecurity"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.2,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            "version": "3.1"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        }
+      ]
+    }
+  ]
+}

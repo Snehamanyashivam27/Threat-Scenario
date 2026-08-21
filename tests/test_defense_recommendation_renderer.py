@@ -54,6 +54,7 @@ def _remediation(
     cve_id: str = "CVE-2030-80001",
     urls: list[str] | None = None,
     checks: list[DefenseApplicabilityCheck] | None = None,
+    scope: str = "",
 ) -> ValidatedRemediation:
     return ValidatedRemediation(
         cve_id=cve_id,
@@ -65,6 +66,7 @@ def _remediation(
         urls=list(urls or []),
         support_state=support_state,
         checks=list(checks or []),
+        scope=scope,
     )
 
 
@@ -153,6 +155,13 @@ def test_eligible_vendor_fix_uses_fixed_prefix_and_verbatim_content():
     assert "/tmp/" not in item.citation
 
 
+def test_advisory_level_vendor_fix_uses_advisory_prefix():
+    rows = _candidates(csaf=[_csaf(remediations=[_remediation(scope="advisory_level")])])
+    assert _texts(render_actionable_recommendations(rows)) == [
+        "Advisory-level vendor remediation: Update to V2.0."
+    ]
+
+
 def test_eligible_mitigation_and_workaround_use_fixed_prefixes():
     rows = _candidates(
         csaf=[
@@ -184,6 +193,33 @@ def test_conditional_vendor_fix_joins_condition_reasons():
     text = _texts(render_actionable_recommendations(rows))[0]
     assert text == (
         "Conditional vendor remediation: Update to V2.0. "
+        "This recommendation is conditional because the deployed version is unknown."
+    )
+
+
+def test_conditional_vendor_fix_keeps_source_sentence_boundary():
+    checks = [_check("version", TruthValue.UNKNOWN, "deployed version unknown")]
+    rows = _candidates(
+        csaf=[
+            _csaf(
+                remediations=[
+                    _remediation(
+                        details=(
+                            "Update to V2.0 or later version. "
+                            'The firmware ModuleA V2.0 is present within "Package" V2.0.'
+                        ),
+                        support_state=DefenseSupportState.CONDITIONAL,
+                        checks=checks,
+                    )
+                ]
+            )
+        ]
+    )
+    text = _texts(render_actionable_recommendations(rows))[0]
+    assert "later version The firmware" not in text
+    assert text == (
+        "Conditional vendor remediation: Update to V2.0 or later version. "
+        'The firmware ModuleA V2.0 is present within "Package" V2.0. '
         "This recommendation is conditional because the deployed version is unknown."
     )
 

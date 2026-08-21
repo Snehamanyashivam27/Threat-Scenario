@@ -195,7 +195,7 @@ def test_rejected_when_remediation_product_conflicts():
     assert _check_named(row.remediations[0], "remediation_scope") == TruthValue.FALSE
 
 
-def test_unresolved_remediation_scope_is_conditional_when_product_is_true():
+def test_unresolved_remediation_scope_is_suppressed_when_product_is_true():
     action = RemediationAction(category="vendor_fix", details="Update to V2.0.", product_ids=["CSAFPID-0001"])
     step = _step(candidates=[_candidate(traces=[])])
     row = _validate(step, [_record(actions=[action])])
@@ -204,11 +204,12 @@ def test_unresolved_remediation_scope_is_conditional_when_product_is_true():
     assert _check_named(item, "product") == TruthValue.TRUE
     assert _check_named(item, "remediation_scope") == TruthValue.UNKNOWN
     assert _check_named(item, "source_conflict") == TruthValue.TRUE
-    assert item.support_state == DefenseSupportState.CONDITIONAL
+    assert item.support_state == DefenseSupportState.INSUFFICIENT_EVIDENCE
+    assert item.support_state != DefenseSupportState.CONDITIONAL
     assert _reason(item, "remediation_scope") == "remediation product_ids cannot be related to selected product evidence"
 
 
-def test_unresolved_scope_and_unknown_version_remain_conditional():
+def test_unresolved_scope_and_unknown_version_remain_insufficient():
     candidate = _candidate(version=TruthValue.UNKNOWN, traces=[])
     candidate.checks = [
         _check("product", TruthValue.TRUE),
@@ -217,7 +218,8 @@ def test_unresolved_scope_and_unknown_version_remain_conditional():
     ]
     action = RemediationAction(category="vendor_fix", details="Update to V2.0.", product_ids=["CSAFPID-0001"])
     item = _validate(_step(candidates=[candidate]), [_record(actions=[action])]).remediations[0]
-    assert item.support_state == DefenseSupportState.CONDITIONAL
+    assert item.support_state == DefenseSupportState.INSUFFICIENT_EVIDENCE
+    assert item.support_state != DefenseSupportState.CONDITIONAL
     assert _check_named(item, "version") == TruthValue.UNKNOWN
     assert _check_named(item, "remediation_scope") == TruthValue.UNKNOWN
     assert _reason(item, "version") == "The deployed version is unknown."
@@ -400,7 +402,7 @@ def test_unknown_fixed_scope_does_not_suppress_conditional_remediation():
     assert item.support_state != DefenseSupportState.INSUFFICIENT_EVIDENCE
 
 
-def test_mitigation_and_workaround_unresolved_scope_are_conditional():
+def test_mitigation_and_workaround_unresolved_scope_are_insufficient():
     for category, details in (
         ("mitigation", "Restrict management-plane access."),
         ("workaround", "Disable unused services."),
@@ -409,7 +411,8 @@ def test_mitigation_and_workaround_unresolved_scope_are_conditional():
         item = _validate(_step(candidates=[_candidate(traces=[])]), [_record(actions=[action])]).remediations[0]
         assert item.category == category
         assert _check_named(item, "remediation_scope") == TruthValue.UNKNOWN
-        assert item.support_state == DefenseSupportState.CONDITIONAL
+        assert item.support_state == DefenseSupportState.INSUFFICIENT_EVIDENCE
+        assert item.support_state != DefenseSupportState.CONDITIONAL
 
 
 def test_vendor_fix_unknown_version_is_not_automatically_supported():
@@ -685,8 +688,9 @@ def test_family_only_trace_does_not_create_positive_scope():
     step = _step(candidates=[_candidate(traces=[_trace("CSAFPID-0001", matched="family")])])
     item = _validate(step, [_record(actions=[action])]).remediations[0]
     assert _check_named(item, "remediation_scope") == TruthValue.UNKNOWN
-    assert item.support_state == DefenseSupportState.CONDITIONAL
+    assert item.support_state == DefenseSupportState.INSUFFICIENT_EVIDENCE
     assert item.support_state != DefenseSupportState.SUPPORTED
+    assert item.support_state != DefenseSupportState.CONDITIONAL
 
 
 def test_textual_product_fields_do_not_masquerade_as_csaf_product_ids():
@@ -697,8 +701,9 @@ def test_textual_product_fields_do_not_masquerade_as_csaf_product_ids():
     masquerade["part_number"] = "CSAFPID-0001"
     unresolved = _validate(_step(candidates=[_candidate(traces=[masquerade])]), [_record(actions=[action])])
     assert _check_named(unresolved.remediations[0], "remediation_scope") == TruthValue.UNKNOWN
-    assert unresolved.remediations[0].support_state == DefenseSupportState.CONDITIONAL
+    assert unresolved.remediations[0].support_state == DefenseSupportState.INSUFFICIENT_EVIDENCE
     assert unresolved.remediations[0].support_state != DefenseSupportState.SUPPORTED
+    assert unresolved.remediations[0].support_state != DefenseSupportState.CONDITIONAL
 
     mapped = _trace("CSAFPID-0001", matched="model")
     mapped["product_name"] = "FlowMaster X100"

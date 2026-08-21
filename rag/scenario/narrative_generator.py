@@ -144,6 +144,13 @@ class ScenarioNarrativeGenerator:
                 step=step,
                 lane="rrf",
             )
+            harvest = self._admit_identifier_cves(
+                harvest,
+                reference_texts,
+                identity_fields=identity_fields,
+                prefer_tokens=prefer_tokens,
+                step=step,
+            )
             expansion_blob = "\n".join(advisory_retrieved + advisory_answers)
             ordered_cves = self._order_cves_for_expansion(
                 expansion_blob,
@@ -545,6 +552,65 @@ class ScenarioNarrativeGenerator:
             ids=ordered,
             ranks=best_rank,
             identity=identity_score,
+            guaranteed=guaranteed,
+            sources=sources,
+            kinds=kinds,
+            objectives=objectives,
+        )
+
+    @classmethod
+    def _admit_identifier_cves(
+        cls,
+        harvest: DiscoveryHarvest,
+        reference_texts: list[str],
+        *,
+        identity_fields: dict[str, list[str]] | None = None,
+        prefer_tokens: list[str] | None = None,
+        step: AttackStep | None = None,
+    ) -> DiscoveryHarvest:
+        """Keep identifier-lookup CVEs in the discovery universe even if RRF missed them."""
+        if not reference_texts:
+            return harvest
+        ids = list(harvest.ids)
+        ranks = dict(harvest.ranks)
+        identity = dict(harvest.identity)
+        guaranteed = set(harvest.guaranteed)
+        sources = dict(harvest.sources)
+        kinds = dict(harvest.kinds)
+        objectives = dict(harvest.objectives)
+        for index, text in enumerate(reference_texts):
+            preview = text or ""
+            doc_score = cls._dimensioned_identity_score(
+                preview, identity_fields=identity_fields, prefer_tokens=prefer_tokens
+            )
+            obj_score = cls._objective_score(preview, step)
+            for cve_id in extract_cves(preview):
+                upper = str(cve_id).upper()
+                if not upper.startswith("CVE-"):
+                    continue
+                if upper not in ids:
+                    ids.append(upper)
+                ranks.setdefault(upper, 0)
+                identity[upper] = max(identity.get(upper, 0), doc_score)
+                objectives[upper] = max(objectives.get(upper, 0), obj_score)
+                kinds.setdefault(upper, "identifier")
+                sources.setdefault(upper, f"identifier:{index}")
+        ordered = sorted(
+            ids,
+            key=lambda cve_id: cls._admission_sort_key(
+                cve_id,
+                identity_map=identity,
+                kinds=kinds,
+                guaranteed=guaranteed,
+                objective_map=objectives,
+                rank_map=ranks,
+                first_seen={cve: index for index, cve in enumerate(ids)},
+            ),
+        )
+        return DiscoveryHarvest(
+            ids=ordered,
+            ranks=ranks,
+            identity=identity,
             guaranteed=guaranteed,
             sources=sources,
             kinds=kinds,

@@ -112,6 +112,30 @@ def test_returns_null_when_no_eligible_candidates():
     selection = select_best_step_candidate("exploit", candidates, component=_component())
 
     assert selection.selected is None
+    assert selection.reason == "rejected"
+
+
+def test_empty_discovery_is_abstain_not_no_cve_applies():
+    selection = select_best_step_candidate("exploit", [], component=_component())
+
+    assert selection.selected is None
+    assert selection.reason == "abstain"
+
+
+def test_unknown_effect_is_insufficient_not_silent_abstain():
+    candidates = [
+        _candidate(
+            "CVE-2030-10001",
+            disposition="insufficient",
+            product=TruthValue.TRUE,
+            version=TruthValue.TRUE,
+            effect=TruthValue.UNKNOWN,
+        )
+    ]
+    selection = select_best_step_candidate("exploit", candidates, component=_component())
+
+    assert selection.selected is None
+    assert selection.reason == "insufficient"
 
 
 def test_conditional_unknown_effect_not_eliminated_by_advisory_id_mismatch():

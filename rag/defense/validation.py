@@ -18,6 +18,14 @@ from rag.defense.models import (
     StepRemediationInventory,
     ValidatedRemediation,
 )
+from rag.defense.product_binding import (
+    bind_product_scope,
+    bindable_selected_product_ids,
+    classify_remediation_scope,
+    deployment_context,
+    feature_scope_status,
+    is_product_scoped,
+)
 from rag.scenario.evidence import ApplicabilityCheck, CandidateEvidence, StepEvidence, TruthValue
 from rag.scenario.models import ScenarioNarrativeResult
 from rag.utils.text import dedupe_preserve_order
@@ -30,6 +38,7 @@ _CHECK_ORDER = (
     "version",
     "remediation_scope",
     "fixed_scope",
+    "feature_scope",
     "source_conflict",
     "unresolved_conditions",
 )
@@ -39,7 +48,6 @@ _POSITIVE_STATES = frozenset(
         DefenseSupportState.CONDITIONAL,
     }
 )
-_SCOPE_CONDITIONAL_CATEGORIES = frozenset({"vendor_fix", "mitigation", "workaround"})
 
 
 def validate_scenario_result(
@@ -128,20 +136,32 @@ def _validate_action(
     record: CveRemediationRecord,
     action: RemediationAction,
 ) -> ValidatedRemediation:
-    selected_ids = _selected_matching_product_ids(candidate)
+    scope = classify_remediation_scope(action.product_ids, action.scope)
+    selected_ids = bindable_selected_product_ids(candidate, record.product_index)
+    _binding, scope_status, scope_reason = bind_product_scope(
+        product_ids=list(action.product_ids),
+        selected_ids=selected_ids,
+        product_index=record.product_index,
+        candidate=candidate,
+        scope=scope,
+    )
+    context = deployment_context(candidate)
+    feature_status, feature_reason = feature_scope_status(
+        action.details,
+        context,
+        product_scoped=is_product_scoped(action.product_ids, scope),
+    )
     by_name = {
         "cve_match": _cve_match_check(selected_cve, record.cve_id),
         "advisory_match": _advisory_match_check(candidate, record.advisory_id),
         "product": _copy_candidate_check(candidate, "product"),
         "version": _copy_candidate_check(candidate, "version"),
-        "remediation_scope": _scope_check(
+        "remediation_scope": DefenseApplicabilityCheck(
             name="remediation_scope",
-            scope_ids=list(action.product_ids),
-            selected_ids=selected_ids,
-            empty_reason="remediation is not product-scoped",
-            overlap_reason="remediation product_ids overlap selected product evidence",
-            conflict_reason="remediation product_ids conflict with selected product evidence",
-            unresolved_reason="remediation product_ids cannot be related to selected product evidence",
+            status=scope_status,
+            required=";".join(selected_ids),
+            observed=";".join(item for item in action.product_ids if item),
+            reason=scope_reason,
         ),
         "fixed_scope": _scope_check(
             name="fixed_scope",
@@ -153,11 +173,16 @@ def _validate_action(
             unresolved_reason="fixed_product_ids cannot be related to selected product evidence",
             disjoint_is_unknown=True,
         ),
+        "feature_scope": DefenseApplicabilityCheck(
+            name="feature_scope",
+            status=feature_status,
+            reason=feature_reason,
+        ),
         "source_conflict": _source_conflict_check(candidate, action, selected_ids, record),
         "unresolved_conditions": _unresolved_check(candidate),
     }
     checks = [by_name[name] for name in _CHECK_ORDER]
-    state = _roll_up(action.category, checks)
+    state = _roll_up(action.category, checks, product_scoped=is_product_scoped(action.product_ids, scope))
     return ValidatedRemediation(
         cve_id=record.cve_id,
         advisory_id=record.advisory_id,
@@ -171,6 +196,8 @@ def _validate_action(
         fixed_product_ids=list(record.fixed_product_ids),
         support_state=state,
         checks=checks,
+        scope=scope,
+        deployment_context=context,
     )
 
 
@@ -249,15 +276,18 @@ def _scope_check(
     conflict_reason: str,
     unresolved_reason: str,
     disjoint_is_unknown: bool = False,
+    empty_status: TruthValue | None = None,
 ) -> DefenseApplicabilityCheck:
     scoped = dedupe_preserve_order([item for item in scope_ids if item])
     selected = dedupe_preserve_order([item for item in selected_ids if item])
     observed = ";".join(scoped)
     required = ";".join(selected)
     if not scoped:
+        if empty_status is None:
+            empty_status = TruthValue.TRUE if name == "remediation_scope" else TruthValue.UNKNOWN
         return DefenseApplicabilityCheck(
             name=name,
-            status=TruthValue.TRUE if name == "remediation_scope" else TruthValue.UNKNOWN,
+            status=empty_status,
             required=required,
             observed=observed,
             reason=empty_reason,
@@ -421,13 +451,19 @@ def _unresolved_check(candidate: CandidateEvidence | None) -> DefenseApplicabili
     )
 
 
-def _roll_up(category: str, checks: list[DefenseApplicabilityCheck]) -> DefenseSupportState:
+def _roll_up(
+    category: str,
+    checks: list[DefenseApplicabilityCheck],
+    *,
+    product_scoped: bool,
+) -> DefenseSupportState:
     status = {item.name: item.status for item in checks}
     cve_match = status["cve_match"]
     product = status["product"]
     version = status["version"]
     remediation_scope = status["remediation_scope"]
     fixed_scope = status["fixed_scope"]
+    feature_scope = status.get("feature_scope", TruthValue.TRUE)
     source_conflict = status["source_conflict"]
     unresolved = status["unresolved_conditions"]
     advisory_match = status["advisory_match"]
@@ -444,14 +480,10 @@ def _roll_up(category: str, checks: list[DefenseApplicabilityCheck]) -> DefenseS
         return DefenseSupportState.NOT_APPLICABLE
     if product == TruthValue.UNKNOWN:
         return DefenseSupportState.INSUFFICIENT_EVIDENCE
-    if (
-        category in _SCOPE_CONDITIONAL_CATEGORIES
-        and cve_match == TruthValue.TRUE
-        and product == TruthValue.TRUE
-        and remediation_scope == TruthValue.UNKNOWN
-        and fixed_scope in {TruthValue.TRUE, TruthValue.UNKNOWN}
-    ):
-        return DefenseSupportState.CONDITIONAL
+    if product_scoped and remediation_scope == TruthValue.UNKNOWN:
+        return DefenseSupportState.INSUFFICIENT_EVIDENCE
+    if product_scoped and feature_scope == TruthValue.UNKNOWN:
+        return DefenseSupportState.INSUFFICIENT_EVIDENCE
     if remediation_scope == TruthValue.UNKNOWN and fixed_scope != TruthValue.TRUE:
         return DefenseSupportState.INSUFFICIENT_EVIDENCE
     if version == TruthValue.UNKNOWN or unresolved == TruthValue.UNKNOWN:
@@ -464,26 +496,7 @@ def _roll_up(category: str, checks: list[DefenseApplicabilityCheck]) -> DefenseS
 
 
 def _selected_matching_product_ids(candidate: CandidateEvidence | None) -> list[str]:
-    if candidate is None:
-        return []
-    ids: list[str] = []
-    for trace in candidate.product_evidence_trace:
-        if not isinstance(trace, dict):
-            continue
-        product_id = str(trace.get("product_id") or "").strip()
-        if not product_id:
-            continue
-        polarity = str(trace.get("polarity") or "POSITIVE")
-        strength = str(trace.get("evidence_strength") or "")
-        if polarity == "NEGATIVE" or strength == "NEGATIVE":
-            continue
-        if str(trace.get("conflicting_evidence") or ""):
-            continue
-        matched = str(trace.get("matched_dimension") or "")
-        if matched not in _EXACT_MATCH_DIMENSIONS:
-            continue
-        ids.append(product_id)
-    return dedupe_preserve_order(ids)
+    return bindable_selected_product_ids(candidate, None)
 
 
 def _selected_cve(step: StepEvidence) -> str | None:

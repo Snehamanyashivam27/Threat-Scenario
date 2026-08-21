@@ -17,6 +17,7 @@ class ContextCache:
     def __init__(self, cache_path: str | Path | None = None):
         self.cache_path = Path(cache_path) if cache_path else None
         self._entries: dict[str, CachedContextEntry] = {}
+        self._dirty = False
         if self.cache_path and self.cache_path.exists():
             self._load()
 
@@ -26,13 +27,21 @@ class ContextCache:
             return None
         return entry.contextual_text
 
-    def set(self, chunk_id: str, content_hash: str, contextual_text: str) -> None:
+    def set(self, chunk_id: str, content_hash: str, contextual_text: str, *, persist: bool = True) -> None:
         self._entries[chunk_id] = CachedContextEntry(
             chunk_id=chunk_id,
             content_hash=content_hash,
             contextual_text=contextual_text,
         )
+        self._dirty = True
+        if persist:
+            self.flush()
+
+    def flush(self) -> None:
+        if not self._dirty:
+            return
         self._persist()
+        self._dirty = False
 
     def _load(self) -> None:
         if self.cache_path is None or not self.cache_path.exists():

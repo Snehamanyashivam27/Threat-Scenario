@@ -9,6 +9,7 @@ from typing import Any, Iterable
 from rag.embeddings.embedding_service import EmbeddingService
 from rag.models.document import ChunkDocument, RetrievedChunk
 from rag.retrieval.ranking import score_chunk_id_key
+from rag.utils.progress import report_progress
 
 
 class ChromaStore:
@@ -59,8 +60,10 @@ class ChromaStore:
             return
 
         batch_size = int(os.getenv("RAG_INDEX_BATCH_SIZE", "32"))
+        total = len(chunk_list)
         if self._backend == "chroma" and self._collection is not None:
-            for start in range(0, len(chunk_list), batch_size):
+            report_progress("Embedding chunks into Chroma", 0, total)
+            for start in range(0, total, batch_size):
                 batch = chunk_list[start : start + batch_size]
                 embeddings = self.embedding_service.embed_documents([chunk.embedding_text() for chunk in batch])
                 self._collection.upsert(
@@ -69,6 +72,7 @@ class ChromaStore:
                     metadatas=[self._serialize_metadata(chunk) for chunk in batch],
                     embeddings=embeddings,
                 )
+                report_progress("Embedding chunks into Chroma", min(start + len(batch), total), total)
             self._ensure_collection_metadata()
             self._persist_if_supported()
             return

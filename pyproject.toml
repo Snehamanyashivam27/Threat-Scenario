@@ -23,6 +23,8 @@ dev = ["pytest>=8.0"]
 rag-cli = "rag.cli:main"
 scenario-cli = "rag.scenario.cli:main"
 ingest-cisa-csaf = "rag.ingest_cisa_csaf:main"
+ingest-nvd-cve = "rag.ingest_nvd_cve:main"
+sync-cve-coverage = "rag.sync_cve_coverage:main"
 
 [tool.setuptools.packages.find]
 include = ["rag*"]

@@ -141,7 +141,7 @@ def test_dos_effect_rejected_for_device_compromise_step():
     assert _gate(candidate, "technical_effect") == "known_false"
 
 
-def test_csaf_cwe_matrix_match_without_prose_confirmation_is_conditional_not_rejected():
+def test_csaf_cwe_matrix_match_without_prose_confirmation_is_insufficient_not_rejected():
     """CWE/taxonomy identifies class; without CVE-local consequence, effect stays UNKNOWN."""
     text = "\n".join(
         [
@@ -168,6 +168,8 @@ def test_csaf_cwe_matrix_match_without_prose_confirmation_is_conditional_not_rej
 
     assert _gate(candidate, "technical_effect") == "unknown"
     assert candidate.final_status != FinalStatus.REJECTED_EFFECT_MISMATCH.value
+    assert candidate.disposition == "insufficient"
+    assert candidate.final_status == FinalStatus.INSUFFICIENT_CONTEXT.value
     assert _gate(candidate, "product") == "known_true"
 
 

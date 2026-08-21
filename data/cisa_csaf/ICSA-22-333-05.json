@@ -1,0 +1,2122 @@
+{
+  "document": {
+    "acknowledgments": [
+      {
+        "names": [
+          "Anton Dorfman",
+          "Vladimir Nazarov",
+          "Dmitry Sklyarov",
+          "Iliya Rogachev"
+        ],
+        "organization": "Positive Technologies",
+        "summary": "reporting CVE-2022-25164, CVE-2022-29825, CVE-2022-29826, CVE-2022-29827, CVE-2022-29828, CVE-2022-29829, and CVE-2022-29830 to Mitsubishi Electric"
+      },
+      {
+        "names": [
+          "Ivan Speziale"
+        ],
+        "organization": "Nozomi Networks",
+        "summary": "reporting CVE-2022-29831, CVE-2022-29832, and CVE-2022-29833 to CISA"
+      }
+    ],
+    "category": "csaf_security_advisory",
+    "csaf_version": "2.0",
+    "distribution": {
+      "text": "Disclosure is not limited",
+      "tlp": {
+        "label": "WHITE",
+        "url": "https://www.cisa.gov/news-events/news/traffic-light-protocol-tlp-definitions-and-usage"
+      }
+    },
+    "lang": "en-US",
+    "notes": [
+      {
+        "category": "legal_disclaimer",
+        "text": "This product is provided subject to this Notification (https://www.cisa.gov/notification) and this Privacy & Use policy (https://www.cisa.gov/privacy-policy).",
+        "title": "Legal Notice and Terms of Use"
+      },
+      {
+        "category": "summary",
+        "text": "Successful exploitation of these vulnerabilities could allow unauthorized users to gain access to the MELSEC iQ-R/F/L series CPU modules and the MELSEC iQ-R series OPC UA server module or to view and execute programs or view project files without permissions. ",
+        "title": "Risk evaluation"
+      },
+      {
+        "category": "other",
+        "text": "Critical Manufacturing",
+        "title": "Critical infrastructure sectors"
+      },
+      {
+        "category": "other",
+        "text": "Worldwide",
+        "title": "Countries/areas deployed"
+      },
+      {
+        "category": "other",
+        "text": "Japan",
+        "title": "Company headquarters location"
+      },
+      {
+        "category": "general",
+        "text": "CISA recommends users take defensive measures to minimize the exploitation risk of these vulnerabilities, such as:",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Minimizing network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Locating control system networks and remote devices behind firewalls and isolating them from business networks.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "When remote access is required, using more secure methods, such as Virtual Private Networks (VPNs). Recognize VPNs may have vulnerabilities, should be updated to the most recent version available, and are only as secure as the connected devices.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov. Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets. Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents.",
+        "title": "Recommended Practices"
+      },
+      {
+        "category": "general",
+        "text": "No known public exploits specifically target these vulnerabilities.",
+        "title": "Recommended Practices"
+      }
+    ],
+    "publisher": {
+      "category": "coordinator",
+      "contact_details": "central@cisa.dhs.gov",
+      "name": "CISA",
+      "namespace": "https://www.cisa.gov/"
+    },
+    "references": [
+      {
+        "category": "self",
+        "summary": "ICS Advisory ICSA-22-333-05 JSON",
+        "url": "https://raw.githubusercontent.com/cisagov/CSAF/develop/csaf_files/OT/white/2022/icsa-22-333-05.json"
+      },
+      {
+        "category": "self",
+        "summary": "ICSA Advisory ICSA-22-333-05 - Web Version",
+        "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-22-333-05"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/uscert/ics/alerts/ICS-ALERT-10-301-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/resources-tools/resources/ics-recommended-practices"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/sites/default/files/publications/Cybersecurity_Best_Practices_for_Industrial_Control_Systems.pdf"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/news-events/ics-alerts/ics-alert-10-301-01"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/topics/industrial-control-systems"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/sites/default/files/recommended_practices/NCCIC_ICS-CERT_Defense_in_Depth_2016_S508C.pdf"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/news-events/news/targeted-cyber-intrusion-detection-and-mitigation-strategies-update-b"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/secure-our-world/teach-employees-avoid-phishing"
+      },
+      {
+        "category": "external",
+        "summary": "Recommended Practices",
+        "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks"
+      }
+    ],
+    "title": "Mitsubishi Electric FA Engineering Software (Update C)",
+    "tracking": {
+      "current_release_date": "2025-11-25T07:00:00.000000Z",
+      "generator": {
+        "date": "2025-11-25T16:35:41.586989Z",
+        "engine": {
+          "name": "CISA CSAF Generator",
+          "version": "1.0.0"
+        }
+      },
+      "id": "ICSA-22-333-05",
+      "initial_release_date": "2022-12-05T07:00:00.000000Z",
+      "revision_history": [
+        {
+          "date": "2022-12-05T07:00:00.000000Z",
+          "legacy_version": "Initial",
+          "number": "1",
+          "summary": "Initial Publication"
+        },
+        {
+          "date": "2023-06-01T06:00:00.000000Z",
+          "legacy_version": "Update A",
+          "number": "2",
+          "summary": "Update A - Changes to affected products, description of vulnerabilities, and mitigations"
+        },
+        {
+          "date": "2023-06-29T06:00:00.000000Z",
+          "legacy_version": "Update B",
+          "number": "3",
+          "summary": "Update B - Changes to affected products and mitigations"
+        },
+        {
+          "date": "2025-11-25T07:00:00.000000Z",
+          "legacy_version": "Update C",
+          "number": "4",
+          "summary": "Update C - Added MT Works2 to Affected Products and Mitigations"
+        }
+      ],
+      "status": "final",
+      "version": "4"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "branches": [
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.000A|<1.011M",
+                "product": {
+                  "name": "Mitsubishi Electric GX Works3: >=1.000A|<1.011M",
+                  "product_id": "CSAFPID-0001"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Works3"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.015R|<1.087R",
+                "product": {
+                  "name": "Mitsubishi Electric GX Works3: >=1.015R|<1.087R",
+                  "product_id": "CSAFPID-0002"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Works3"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version",
+                "name": "1.090U",
+                "product": {
+                  "name": "Mitsubishi Electric GX Works3: 1.090U",
+                  "product_id": "CSAFPID-0003"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Works3"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version",
+                "name": "1.095Z",
+                "product": {
+                  "name": "Mitsubishi Electric GX Works3: 1.095Z",
+                  "product_id": "CSAFPID-0004"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Works3"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.096A",
+                "product": {
+                  "name": "Mitsubishi Electric GX Works3: >=1.096A",
+                  "product_id": "CSAFPID-0005"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Works3"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": "<=1.08J",
+                "product": {
+                  "name": "Mitsubishi Electric MX OPC UA Module Configurator-R: <=1.08J",
+                  "product_id": "CSAFPID-0006"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "MX OPC UA Module Configurator-R"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version",
+                "name": "vers:all/*",
+                "product": {
+                  "name": "Mitsubishi Electric GX Works2: vers:all/*",
+                  "product_id": "CSAFPID-0007"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Works2"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=8.40S",
+                "product": {
+                  "name": "Mitsubishi Electric GX Developer: >=8.40S",
+                  "product_id": "CSAFPID-0008"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GX Developer"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.122C|<1.290C",
+                "product": {
+                  "name": "Mitsubishi Electric GT Designer3 Version1 (GOT2000): >=1.122C|<1.290C",
+                  "product_id": "CSAFPID-0009"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "GT Designer3 Version1 (GOT2000)"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.000A|<1.033K",
+                "product": {
+                  "name": "Mitsubishi Electric Motion Control Settings (GX Works3 related software): >=1.000A|<1.033K",
+                  "product_id": "CSAFPID-0010"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "Motion Control Settings (GX Works3 related software)"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.035M|<1.042U",
+                "product": {
+                  "name": "Mitsubishi Electric Motion Control Settings (GX Works3 related software): >=1.035M|<1.042U",
+                  "product_id": "CSAFPID-0011"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "Motion Control Settings (GX Works3 related software)"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.045X|<1.065T",
+                "product": {
+                  "name": "Mitsubishi Electric Motion Control Settings (GX Works3 related software): >=1.045X|<1.065T",
+                  "product_id": "CSAFPID-0012"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "Motion Control Settings (GX Works3 related software)"
+          },
+          {
+            "branches": [
+              {
+                "category": "product_version_range",
+                "name": ">=1.100E|<1.200J",
+                "product": {
+                  "name": "Mitsubishi Electric MT Works2: >=1.100E|<1.200J",
+                  "product_id": "CSAFPID-0013"
+                }
+              }
+            ],
+            "category": "product_name",
+            "name": "MT Works2"
+          }
+        ],
+        "category": "vendor",
+        "name": "Mitsubishi Electric"
+      }
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "cve": "CVE-2022-25164",
+      "cwe": {
+        "id": "CWE-312",
+        "name": "Cleartext Storage of Sensitive Information"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Cleartext Storage of Sensitive Information vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A to 1.095Z and Mitsubishi Electric MX OPC UA Module Configurator-R versions 1.08J and prior allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated attackers can gain unauthorized access to the MELSEC CPU module and the MELSEC OPC UA server module.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004",
+          "CSAFPID-0006"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-25164"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-25164, CVE-2022-29830, and CVE-2022-29831:  Download fixed Ver. 1.096A or later. Then set security version for project to \"2\".",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "vendor_fix",
+          "details": "MX OPC UA Module Configurator-R:",
+          "product_ids": [
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-25164: Download fixed Ver. 1.09K or later. Update the firmware version of the OPC UA server module to 10 or later.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "Use the \"authentication with a certificate\" function instead of \"username / password authentication\" for user authentication for access from OPC UA clients to MELSEC iQ-R series OPC UA server modules (MX OPC UA Module Configurator-R only).",
+          "product_ids": [
+            "CSAFPID-0006"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 8.6,
+            "baseSeverity": "HIGH",
+            "vectorString": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0006"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29826",
+      "cwe": {
+        "id": "CWE-312",
+        "name": "Cleartext Storage of Sensitive Information"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Cleartext Storage of Sensitive Information vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A to 1.087R and Motion Control Setting(GX Works3 related software) versions from 1.000A to 1.042U allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated users may view programs and project files or execute programs illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0010",
+          "CSAFPID-0011"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29826"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29826: Download fixed Ver. 1.090U or later",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "CVE-2022-29826 and CVE-2022-29829: Download fixed Ver. 1.045X or later. Apply CVE-2022-29826 or CVE-2022-29829 mitigations for GX Works3 as well.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.8,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0010",
+            "CSAFPID-0011"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29825",
+      "cwe": {
+        "id": "CWE-259",
+        "name": "Use of Hard-coded Password"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Use of Hard-coded Password vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A to 1.090U, GT Designer3 Version1 (GOT2000) versions from 1.122C to 1.290C, and MT Works2 versions from 1.100E to 1.200J allows an unauthenticated attacker to disclose sensitive information. As a result, unauthenticated users may view programs and project files or execute programs illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0009",
+          "CSAFPID-0013"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29825"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:C/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29825 and CVE-2022-29829: Download fixed Ver. 1.095Z or later. Then set security key's secure mode to Enabled.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29825 and CVE-2022-29829: Download fixed Ver. 1.295H or later. Then set security key's secure mode to Enabled.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "MT Works2:",
+          "product_ids": [
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29825 and CVE-2022-29829: Download fixed Ver. 1.205P or later and update the software. Then set security key's secure mode to Enabled.Please refer \"MT Developer2 Help\" – \"Security Function\" – \"Manage Security Key\" for details.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 5.6,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:C/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0013"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29831",
+      "cwe": {
+        "id": "CWE-259",
+        "name": "Use of Hard-coded Password"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Use of Hard-coded Password vulnerability in Mitsubishi Electric Corporation GX Works3 versions from 1.015R to 1.095Z allows a remote unauthenticated attacker to obtain information about the project file for MELSEC safety CPU modules.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29831"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-25164, CVE-2022-29830, and CVE-2022-29831:  Download fixed Ver. 1.096A or later. Then set security version for project to \"2\".",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 7.5,
+            "baseSeverity": "HIGH",
+            "vectorString": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29833",
+      "cwe": {
+        "id": "CWE-522",
+        "name": "Insufficiently Protected Credentials"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Insufficiently Protected Credentials vulnerability in Mitsubishi Electric Corporation GX Works3 Versions 1.015R and later allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated users could access to MELSEC safety CPU modules illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004",
+          "CSAFPID-0005"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29833"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:H/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.8,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:H/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29827",
+      "cwe": {
+        "id": "CWE-321",
+        "name": "Use of Hard-coded Cryptographic Key"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Use of Hard-coded Cryptographic Key vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A and later allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated attackers may view programs and project files or execute programs illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004",
+          "CSAFPID-0005"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29827"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.8,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29828",
+      "cwe": {
+        "id": "CWE-321",
+        "name": "Use of Hard-coded Cryptographic Key"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Use of Hard-coded Cryptographic Key vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A and later allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated attackers may view programs and project file or execute programs illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004",
+          "CSAFPID-0005"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29828"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.8,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29829",
+      "cwe": {
+        "id": "CWE-321",
+        "name": "Use of Hard-coded Cryptographic Key"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Use of Hard-coded Cryptographic Key vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A to 1.090U, GT Designer3 Version1 (GOT2000) versions from 1.122C to 1.290C, Motion Control Setting(GX Works3 related software) versions from 1.035M to 1.042U, and MT Works2 versions from 1.100E to 1.200J allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated users may view programs and project files or execute programs illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0009",
+          "CSAFPID-0011",
+          "CSAFPID-0013"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29829"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29825 and CVE-2022-29829: Download fixed Ver. 1.095Z or later. Then set security key's secure mode to Enabled.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29825 and CVE-2022-29829: Download fixed Ver. 1.295H or later. Then set security key's secure mode to Enabled.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "CVE-2022-29826 and CVE-2022-29829: Download fixed Ver. 1.045X or later. Apply CVE-2022-29826 or CVE-2022-29829 mitigations for GX Works3 as well.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "vendor_fix",
+          "details": "MT Works2:",
+          "product_ids": [
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-29825 and CVE-2022-29829: Download fixed Ver. 1.205P or later and update the software. Then set security key's secure mode to Enabled.Please refer \"MT Developer2 Help\" – \"Security Function\" – \"Manage Security Key\" for details.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 6.8,
+            "baseSeverity": "MEDIUM",
+            "vectorString": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0009",
+            "CSAFPID-0011",
+            "CSAFPID-0013"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29830",
+      "cwe": {
+        "id": "CWE-321",
+        "name": "Use of Hard-coded Cryptographic Key"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Use of Hard-coded Cryptographic Key vulnerability in Mitsubishi Electric GX Works3 versions from 1.000A to 1.095Z, and Motion Control Setting(GX Works3 related software) versions from 1.000A to 1.065T allows a remote unauthenticated attacker to disclose or tamper with sensitive information. As a result, unauthenticated attackers may obtain information about project files illegally.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0001",
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004",
+          "CSAFPID-0010",
+          "CSAFPID-0011",
+          "CSAFPID-0012"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29830"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "CVE-2022-25164, CVE-2022-29830, and CVE-2022-29831:  Download fixed Ver. 1.096A or later. Then set security version for project to \"2\".",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "CVE-2022-29830: Download fixed Ver. 1.070Y or later and update the software. Set security version for project to \"2\". Refer \"Motion Control Setting Function Help\" – \"12.5. Preventing Illegal Access to/Falsification of Data (Security Version)\" for details. Apply the countermeasure for CVE-2022-29830 listed in GX Works3.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004"
+          ],
+          "url": "https://www.mitsubishielectric.com/fa/#software"
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 9.1,
+            "baseSeverity": "CRITICAL",
+            "vectorString": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0001",
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0010",
+            "CSAFPID-0011",
+            "CSAFPID-0012"
+          ]
+        }
+      ]
+    },
+    {
+      "cve": "CVE-2022-29832",
+      "cwe": {
+        "id": "CWE-316",
+        "name": "Cleartext Storage of Sensitive Information in Memory"
+      },
+      "notes": [
+        {
+          "category": "summary",
+          "text": "Cleartext Storage of Sensitive Information in Memory vulnerability in Mitsubishi Electric Corporation GX Works3 Versions 1.015R and later, GX Works2 all versions and GX Developer Versions 8.40S and later allows a remote unauthenticated attacker to disclose sensitive information. As a result, unauthenticated users could obtain information about the project file for MELSEC safety CPU modules or project files for MELSEC Q/FX/L series with security settings.",
+          "title": "Vulnerability Summary"
+        }
+      ],
+      "product_status": {
+        "known_affected": [
+          "CSAFPID-0002",
+          "CSAFPID-0003",
+          "CSAFPID-0004",
+          "CSAFPID-0005",
+          "CSAFPID-0007",
+          "CSAFPID-0008"
+        ]
+      },
+      "references": [
+        {
+          "category": "external",
+          "summary": "web.nvd.nist.gov",
+          "url": "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2022-29832"
+        },
+        {
+          "category": "external",
+          "summary": "www.first.org",
+          "url": "https://www.first.org/cvss/calculator/3.0#CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N"
+        }
+      ],
+      "remediations": [
+        {
+          "category": "mitigation",
+          "details": "Mitsubishi Electric released and recommends users update to the latest version:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "vendor_fix",
+          "details": "GX Works3:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "GT Designer3 Version1 (GOT2000):",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Motion Control Setting:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For all other listed vulnerabilities, Mitsubishi Electric released mitigations/workarounds for users to follow:",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Ensure malicious actors cannot access project files, configuration files, security keys stored on the host machine via untrusted networks or hosts.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Install antivirus software on the host machine running the software.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "Encrypt project files and security keys when sending or receiving over the Internet.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        },
+        {
+          "category": "mitigation",
+          "details": "For specific update instructions and additional details, see the Mitsubishi Electric advisory.",
+          "product_ids": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ],
+          "url": "https://www.mitsubishielectric.com/en/psirt/vulnerability/pdf/2022-015_en.pdf"
+        }
+      ],
+      "scores": [
+        {
+          "cvss_v3": {
+            "baseScore": 3.7,
+            "baseSeverity": "LOW",
+            "vectorString": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
+            "version": "3.0"
+          },
+          "products": [
+            "CSAFPID-0002",
+            "CSAFPID-0003",
+            "CSAFPID-0004",
+            "CSAFPID-0005",
+            "CSAFPID-0007",
+            "CSAFPID-0008"
+          ]
+        }
+      ]
+    }
+  ]
+}

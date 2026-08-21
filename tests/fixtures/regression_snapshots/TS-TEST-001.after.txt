@@ -1,0 +1,13 @@
+Using existing Chroma index 'rag_chunks_contextual_det32' (6056 chunks). Pass --reindex to rebuild.
+1. TS-OT-TEST-001 — Compromise of a SICAM 8 RTU through the maintenance network
+An external attacker gains access through a compromised maintenance device or valid maintenance credentials. Through the active maintenance or management connection, the attacker reaches the RUGGEDCOM RST2428P switch running SINEC OS.
+The attacker attempts to bypass the network-segmentation controls on the RUGGEDCOM RST2428P. The exact vulnerability used for this action could not be confirmed. The scenario assumes that the network restrictions are successfully bypassed or modified, making the SICAM 8 CPCI85 reachable from the compromised network path.
+CVE-2024-31485 affects SICAM 8 CPCI85 when the deployed version is earlier than V5.30. If the deployed firmware version is earlier than V5.30 and the attacker has authenticated privileged access to the device's web interface, the attacker can exploit the command-injection vulnerability to execute arbitrary code with root privileges.
+As a result, integrity and availability of the affected operational functions may be impaired.
+
+Evidence-backed Defense Recommendations
+---------------------------------------
+
+Step step-compromise-control-component:
+1. Conditional vendor remediation: Update to V5.30 or later version. The firmware CPCI85 V5.30 is present within "CP-8031/CP-8050 Package" V5.30. This recommendation is conditional because the deployed version is unknown.
+   Source: CVE: CVE-2024-31485. Advisory: ICSA-24-137-02.

@@ -10,6 +10,7 @@ class TruthValue(str, Enum):
     FALSE = "known_false"
     UNKNOWN = "unknown"
     CONFLICT = "conflict"
+    NOT_APPLICABLE = "not_applicable"
 
 
 @dataclass(slots=True)

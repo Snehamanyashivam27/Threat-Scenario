@@ -7,6 +7,13 @@ from rag.models.answer import SourceReference
 from rag.scenario.evidence import StepEvidence
 
 
+def _optional_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
 @dataclass(slots=True)
 class ComponentSource:
     origin: str = ""
@@ -25,6 +32,10 @@ class ComponentModel:
     product_family: str | None = None
     model: str | None = None
     part_number: str | None = None
+    serial_number: str | None = None
+    hardware_version: str | None = None
+    product_revision: str | None = None
+    software_version: str | None = None
     firmware_version: str | None = None
     operating_system: str | None = None
     software: list[str] = field(default_factory=list)
@@ -87,6 +98,10 @@ class ComponentModel:
             product_family=data.get("product_family"),
             model=data.get("model"),
             part_number=data.get("part_number"),
+            serial_number=_optional_text(data.get("serial_number")),
+            hardware_version=_optional_text(data.get("hardware_version")),
+            product_revision=_optional_text(data.get("product_revision")),
+            software_version=_optional_text(data.get("software_version")),
             firmware_version=data.get("firmware_version"),
             operating_system=data.get("operating_system"),
             software=software_entries,

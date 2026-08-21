@@ -6,6 +6,7 @@ from rag.ingestion.csaf.models import CveDetailRecord
 from rag.ingestion.csaf.parser import CsafParseError, parse_csaf_directory, parse_csaf_file
 from rag.models.document import SourceDocument
 from rag.scenario.product_evidence import format_product_evidence_blocks
+from rag.utils.progress import report_progress
 from rag.utils.text import clean_text
 
 
@@ -124,7 +125,10 @@ def build_cve_retrieval_text(record: CveDetailRecord) -> str:
 
 
 def load_csaf_source_documents(directory: str | Path) -> list[SourceDocument]:
-    records = parse_csaf_directory(directory)
+    records = parse_csaf_directory(
+        directory,
+        on_progress=lambda current, total: report_progress("Loading CSAF advisories", current, total),
+    )
     return [cve_detail_to_source_document(record) for record in records]
 
 

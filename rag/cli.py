@@ -25,6 +25,7 @@ def build_retriever(root: Path, deterministic: bool = False, reindex: bool = Fal
         collection_name=chroma_collection_name(embedding_service),
     )
 
+    print("Preparing knowledge base (this can take a while on first run or --reindex)...", flush=True)
     chunks = pipeline.build_chunks(
         root / "enterprise-attack.json",
         root / "ics-attack.json",
@@ -32,7 +33,11 @@ def build_retriever(root: Path, deterministic: bool = False, reindex: bool = Fal
         csaf_dir=root / "data" / "cisa_csaf",
     )
     if reindex or not pipeline.store.has_indexed_chunks():
-        print(f"Indexing {len(chunks)} chunks into '{pipeline.store.collection_name}'...", flush=True)
+        print(
+            f"Indexing {len(chunks)} chunks into '{pipeline.store.collection_name}' "
+            "(embeddings via Ollama; percent updates below)...",
+            flush=True,
+        )
         pipeline.index(chunks)
     else:
         print(f"Using existing Chroma index '{pipeline.store.collection_name}' ({pipeline.store.chunk_count()} chunks). Pass --reindex to rebuild.", flush=True)

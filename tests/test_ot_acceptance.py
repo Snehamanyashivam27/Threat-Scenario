@@ -54,11 +54,15 @@ def test_ot_positive_scenarios_surface_expected_cve(
 
     assert match is not None
     product = next(check.status.value for check in match.checks if check.name == "product")
+    effect = next(check.status.value for check in match.checks if check.name == "technical_effect")
     # Indexed CSV/advisory-aggregate rows are WEAK_DISCOVERY; CSAF known_affected
     # without source-stated model/part is SOURCE_MEMBERSHIP. Neither is product TRUE.
-    if product == "unknown":
-        assert not match.is_usable
+    # UNKNOWN product or UNKNOWN effect must remain evaluated as insufficient,
+    # not collapsed into a silent "no CVE applies" reject.
+    if product == "unknown" or effect == "unknown":
+        assert match.disposition == "insufficient"
         assert match.final_status == "insufficient_context"
+        assert not match.is_usable
     else:
         assert match.is_usable
         assert match.disposition in {"applicable", "conditional"}
@@ -86,4 +90,6 @@ def test_ot_negative_version_scenario_rejects_mismatched_firmware(retriever):
     assert match is not None
     assert not match.is_usable
     assert match.disposition == "rejected"
-    assert match.final_status in {"rejected_version_mismatch", "insufficient_context"}
+    assert match.final_status == "rejected_version_mismatch"
+    version = next(check.status.value for check in match.checks if check.name == "version")
+    assert version == "known_false"

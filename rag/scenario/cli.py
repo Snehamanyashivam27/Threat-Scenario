@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--show-defenses",
         action="store_true",
-        help="Print evidence-backed defense recommendations after the narrative",
+        help="Print evidence-backed remediations and D3FEND-style controls after the narrative",
     )
     return parser.parse_args()
 
@@ -88,7 +88,9 @@ def main() -> None:
         print(json.dumps([item.to_dict() for item in result.evidence], indent=2, default=str))
     if args.show_defenses:
         from rag.defense.report_pipeline import (
+            build_d3fend_control_text,
             build_defense_recommendation_text,
+            default_advisory_dir,
             default_attack_sources,
             default_csaf_dir,
         )
@@ -99,6 +101,17 @@ def main() -> None:
                 scenario_dir=args.scenario,
                 csaf_dir=default_csaf_dir(args.root),
                 attack_sources=default_attack_sources(args.root),
+                advisory_dir=default_advisory_dir(args.root),
+            )
+        )
+        print()
+        print(
+            build_d3fend_control_text(
+                result,
+                scenario_dir=args.scenario,
+                csaf_dir=default_csaf_dir(args.root),
+                attack_sources=default_attack_sources(args.root),
+                advisory_dir=default_advisory_dir(args.root),
             )
         )
 

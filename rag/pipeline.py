@@ -40,17 +40,23 @@ class KnowledgeBasePipeline:
         csaf_dir: str | Path | None = None,
     ) -> list[ChunkDocument]:
         documents = []
+        print("Loading MITRE ATT&CK Enterprise...", flush=True)
         documents.extend(parse_attack_bundle(load_attack_bundle(enterprise_attack_path), source_name="enterprise-attack.json"))
+        print("Loading MITRE ATT&CK ICS...", flush=True)
         documents.extend(parse_attack_bundle(load_attack_bundle(ics_attack_path), source_name="ics-attack.json"))
+        print("Loading CISA ICS advisory CSV...", flush=True)
         documents.extend(parse_cisa_advisories(load_cisa_advisories(advisories_path), source_name="CISA_ICS_ADV_Master.csv"))
 
         # CSAF per-CVE details enrich the KB; they do not replace CSV advisory documents.
         resolved_csaf_dir = Path(csaf_dir) if csaf_dir is not None else Path(advisories_path).resolve().parent / "data" / "cisa_csaf"
         if resolved_csaf_dir.exists():
+            print(f"Loading CSAF files from {resolved_csaf_dir}...", flush=True)
             documents.extend(load_csaf_source_documents(resolved_csaf_dir))
 
+        print(f"Chunking {len(documents)} documents...", flush=True)
         normalized = [normalize_source_document(document) for document in documents]
         raw_chunks = self.chunker.chunk_documents(normalized)
+        print(f"Prepared {len(raw_chunks)} chunks. Adding context prefixes...", flush=True)
         return self.context_generator.enrich_chunks(raw_chunks)
 
     def index(self, chunks: list[ChunkDocument]) -> None:
